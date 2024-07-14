@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arrow Function</title>
+</head>
+<body>
+    <h1>Function</h1>
+    
+    <p>This demonstrates a regular function, NOT an arrow function.</p>
+    
+    <p id="demo"></p>
+
+    <!-- Before arrow function -->
+    <!-- <script>
+        hello = function () {
+            return "Simple Functions";
+        }
+      document.getElementById("demo").innerHTML=hello();
+    </script> -->
+
+    <!-- after arrow function -->
+     <!-- <script>
+        hello = ()=>{
+            return "Arrow Functions";
+        }
+        document.getElementById("demo").innerHTML=hello();
+     </script> -->
+
+     <!-- Arrow function with Parameter -->
+      <script>
+        hello = (val) => "Hello " + val;
+          document.getElementById("demo").innerHTML=hello("world");
+      </script>
+
+
+    
+</body>
+</html>
