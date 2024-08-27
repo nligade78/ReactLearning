@@ -55,13 +55,34 @@ const MasterDetailForm = () => {
     setAdditionalField2(e.target.value);
   };
 
-  const handleTransactionTypeChange = (e) => {
-    setTransactionType(e.target.value);
-    if (e.target.value === 'Add Address') {
+  // const handleTransactionTypeChange = (e) => {
+  //   setTransactionType(e.target.value);
+  //   if (e.target.value === 'Add Address') {
+  //     setDescriptionOptions([]);
+  //     setSelectedDescription('');
+  //   }
+  // };
+
+  const handleTransactionTypeChange = (e) => {  
+    const { value } = e.target;
+
+    // Update the transaction type in the form data
+    setFormData((prevState) => ({
+        ...prevState,
+        header: {
+            ...prevState.header,
+            ticketType: value,
+        }
+    }));
+
+    // Additional logic when the transaction type changes
+    setTransactionType(value);
+    if (value === 'Add Address') {
       setDescriptionOptions([]);
       setSelectedDescription('');
     }
-  };
+};
+
 
   const handleSubmit = () => {
     if (transactionType === 'Update Linkage' && !descriptionId) {
@@ -162,3 +183,5 @@ const MasterDetailForm = () => {
 };
 
 export default MasterDetailForm;
+
+
