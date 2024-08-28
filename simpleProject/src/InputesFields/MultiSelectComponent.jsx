@@ -52,3 +52,26 @@ const handleMarketChange = (e) => {
       ],
     }));
   };
+
+-----------------------
+
+ // Separate options based on PRIMARY_SPCLTY_IND
+      const primarySpecialty = data.find(item => item.PRIMARY_SPCLTY_IND === 'Y');
+      const otherSpecialties = data.filter(item => item.PRIMARY_SPCLTY_IND !== 'Y').map(item => ({
+        value: `${item.SPCLTY_CD}-${item.SPCLTY_DESC}-${item.PRIMARY_SPCLTY_IND}`,
+        label: `${item.SPCLTY_CD} - ${item.SPCLTY_DESC} - ${item.PRIMARY_SPCLTY_IND}`,
+      }));
+
+      if (primarySpecialty) {
+        // Auto-populate the description field with the primary specialty
+        setFormData((prevState) => ({
+          ...prevState,
+          profile: {
+            ...prevState.profile,
+            keyData: {
+              ...prevState.profile.keyData,
+              taxonomyCd: primarySpecialty.SPCLTY_CD,
+            },
+          },
+        }));
+      }
