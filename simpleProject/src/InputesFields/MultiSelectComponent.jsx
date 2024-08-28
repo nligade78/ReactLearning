@@ -75,3 +75,19 @@ const handleMarketChange = (e) => {
           },
         }));
       }
+
+
+-----
+  // Separate options based on PRIMARY_SPCLTY_IND
+      const primarySpecialties = data.filter(item => item.PRIMARY_SPCLTY_IND === 'Y').map(item => ({
+        value: `${item.SPCLTY_CD}-${item.SPCLTY_DESC}-${item.PRIMARY_SPCLTY_IND}`,
+        label: `${item.SPCLTY_CD} - ${item.SPCLTY_DESC} - ${item.PRIMARY_SPCLTY_IND}`,
+      }));
+
+      const otherSpecialties = data.filter(item => item.PRIMARY_SPCLTY_IND !== 'Y').map(item => ({
+        value: `${item.SPCLTY_CD}-${item.SPCLTY_DESC}-${item.PRIMARY_SPCLTY_IND}`,
+        label: `${item.SPCLTY_CD} - ${item.SPCLTY_DESC} - ${item.PRIMARY_SPCLTY_IND}`,
+      }));
+
+      // Set options for dropdown, including primary specialties first
+      setDescriptionOptions([...primarySpecialties, ...otherSpecialties]);
