@@ -25,3 +25,30 @@ const MultiSelectComponent = ({ label, name, value, onChange, options = [] }) =>
 };
 
 export default MultiSelectComponent;
+
+const handleMarketChange = (e) => {
+    const { value } = e.target;
+
+    setFormData((prevState) => ({
+      ...prevState,
+      header: {
+        ...prevState.header,
+        originalDetails: {
+          ...prevState.header.originalDetails,
+          contractState: value,  // Set contractState in header
+        },
+      },
+      providerAddress: [
+        {
+          ...prevState.providerAddress[0],
+          address: {
+            ...prevState.providerAddress[0].address,
+            keyData: {
+              ...prevState.providerAddress[0].address.keyData,
+              state: value,  // Set state in providerAddress
+            },
+          },
+        },
+      ],
+    }));
+  };
