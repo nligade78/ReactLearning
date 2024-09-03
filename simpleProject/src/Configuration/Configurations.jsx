@@ -18,6 +18,14 @@ import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Close';
 
 function Configurations() {
+  // State to manage which accordion is expanded, set to 'panel2' by default
+  const [expanded, setExpanded] = useState('panel2');
+
+  // Handler to toggle expansion
+  const handleAccordionChange = (panel) => (event, isExpanded) => {
+    setExpanded(isExpanded ? panel : false);
+  };
+
   // Initial rows and columns for the first DataGrid table
   const initialRowsTable1 = [
     { id: 1, name: 'John Doe', age: 35, isEditMode: false },
@@ -210,7 +218,10 @@ function Configurations() {
   return (
     <Container maxWidth="lg" sx={{ margin: '20px auto', padding: '0' }}>
       {/* Collapsible section for the first DataGrid table */}
-      <Accordion>
+      <Accordion
+        expanded={expanded === 'panel1'}
+        onChange={handleAccordionChange('panel1')}
+      >
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel1-content"
@@ -229,7 +240,7 @@ function Configurations() {
               >
                 Add New Record
               </Button>
-              <div style={{ height: 400, width: '100%' }}>
+              <div style={{ height: 400, width: '100%', overflowY: 'auto' }}>
                 <DataGrid
                   rows={rowsTable1}
                   columns={columnsTable1}
@@ -242,27 +253,42 @@ function Configurations() {
         </AccordionDetails>
       </Accordion>
 
-      {/* Second DataGrid table outside collapsible section */}
-      <Card sx={{ width: '100%', marginTop: 2 }}>
-        <CardContent>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleAddNewRecordTable2}
-            sx={{ marginBottom: 2 }}
-          >
-            Add New Record
-          </Button>
-          <div style={{ height: 400, width: '100%' }}>
-            <DataGrid
-              rows={rowsTable2}
-              columns={columnsTable2}
-              pageSize={5}
-              rowsPerPageOptions={[5]}
-            />
-          </div>
-        </CardContent>
-      </Card>
+      {/* Second DataGrid table in another collapsible section */}
+      <Accordion
+        expanded={expanded === 'panel2'}
+        onChange={handleAccordionChange('panel2')}
+        sx={{ marginTop: 2 }}
+      >
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="panel2-content"
+          id="panel2-header"
+        >
+          <Typography>Show/Hide Table 2</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Card sx={{ width: '100%' }}>
+            <CardContent>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleAddNewRecordTable2}
+                sx={{ marginBottom: 2 }}
+              >
+                Add New Record
+              </Button>
+              <div style={{ height: 400, width: '100%', overflowY: 'auto' }}>
+                <DataGrid
+                  rows={rowsTable2}
+                  columns={columnsTable2}
+                  pageSize={5}
+                  rowsPerPageOptions={[5]}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </AccordionDetails>
+      </Accordion>
     </Container>
   );
 }
