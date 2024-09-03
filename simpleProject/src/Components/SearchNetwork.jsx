@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
 import { add_linkage } from '../InputPayload/add_linkage';
-import { transactionTypeOptions } from '../Constants/Constants';
+import MultiSelectComponent from '../InputesFields/MultiSelectComponent';
 import SelectComponent from '../InputesFields/SelectComponent';
 import TextFieldComponent from '../InputesFields/TextFieldComponent';
+import { transactionTypeOptions } from '../Constants/Constants';
+import NetworkTable from '../Table/NetworkTable';
 
 const SearchNetwork = () => {
-  const [formData, setFormData] = useState(add_linkage);
-  const [networkData, setNetworkData] = useState([]);
-  const [descriptionOptions, setDescriptionOptions] = useState([]); // State to store description options
+  // State definitions
+  const [formData, setFormData] = useState(add_linkage); // Initial form data
+  const [descriptionOptions, setDescriptionOptions] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [data, setData] = useState([]); // State to store data to send to NetworkTable
 
+  // Handle transaction type change
   const handleTransactionTypeChange = (e) => {
     const { value } = e.target;
     setFormData((prevState) => ({
@@ -19,11 +23,15 @@ const SearchNetwork = () => {
         ticketType: value,
       },
     }));
+
+    if (value === 'Add Address') {
+      setData([]); // Clear data for 'Add Address'
+    }
   };
 
+  // Handle input field changes
   const handleChange = async (e) => {
     const { name, value } = e.target;
-
     setFormData((prevState) => {
       const newState = { ...prevState };
       const keys = name.split('.');
@@ -32,9 +40,8 @@ const SearchNetwork = () => {
       keys.forEach((key, index) => {
         if (index === keys.length - 1) {
           if (name === 'description') {
-            // Extract only the id part before the first hyphen
-            const id = value.split('-')[0];
-            current['profile']['keyData']['taxonomyCd'] = id;
+            const ids = value.map((v) => v.split('-')[0]);
+            current['profile']['keyData']['taxonomyCd'] = ids;
           } else {
             current[key] = value;
           }
@@ -46,72 +53,125 @@ const SearchNetwork = () => {
       return newState;
     });
 
-    // Trigger API call when masterProvID changes
     if (name === 'profile.masterProvID' && value) {
       setLoading(true);
       try {
         const response = await fetch(`https://jsonplaceholder.typicode.com/todos?userId=${value}`);
         const data = await response.json();
 
-        // Update descriptionOptions with concatenated id and title
-        const options = data.map(item => ({
-          value: `${item.id}-${item.title}`, // Store the full concatenated value
-          label: `${item.id} - ${item.title}`,
+        const options = data.map((item) => ({
+          value: `${item.id}-${item.title}-${item.completed}`,
+          label: `${item.id} - ${item.title} - ${item.completed}`,
         }));
 
         setDescriptionOptions(options);
+
+        const firstCompletedTrue = data.find((item) => item.completed);
+        if (firstCompletedTrue) {
+          setFormData((prevState) => ({
+            ...prevState,
+            profile: {
+              ...prevState.profile,
+              keyData: {
+                ...prevState.profile.keyData,
+                taxonomyCd: [`${firstCompletedTrue.id}`],
+              },
+            },
+          }));
+        }
       } catch (error) {
         console.error('Error fetching data:', error);
-        setDescriptionOptions([]); // Clear options on error
+        setDescriptionOptions([]);
       } finally {
         setLoading(false);
       }
     }
   };
 
+  // Handle clearing form and table data
+  const handleClear = () => {
+    setFormData(add_linkage); // Reset form data
+    setData([]); // Clear data sent to NetworkTable
+  };
+
+  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log('Submitted Data:', formData);
-    // Handle submit logic
+
+    // // Prepare data to send to NetworkTable
+    // if (formData.header.ticketType === 'Update Linkage') {
+    //   const tableData = [
+    //     { id: 1, state: 'NY', con_state: 'NY', sourceCode: '123', sourceCodeText: 'Example Text' },
+    //     // Add more data rows as needed
+    //   ];
+    //   setData(tableData); // Update state with prepared data
+    // } else {
+    //   setData([]); // Clear data for 'Add Address'
+    // }
   };
 
-  // Function to get the correct option label to display
-  const getSelectedDescriptionLabel = () => {
-    const selectedId = formData.profile.keyData.taxonomyCd;
-    const selectedOption = descriptionOptions.find(option => option.value.startsWith(`${selectedId}-`));
-    return selectedOption ? selectedOption.value : '';
+  // Function to get selected description labels
+  const getSelectedDescriptionLabels = () => {  
+    const selectedIds = formData.profile.keyData.taxonomyCd || [];
+    const selectedOptions = descriptionOptions.filter(
+      (option) => selectedIds.includes(option.value.split('-')[0])
+    );
+    return selectedOptions.map((option) => option.value);
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <SelectComponent
-        label="Transaction type"
-        name="formData.header.ticketType"
-        value={formData.header.ticketType || ''}
-        onChange={handleTransactionTypeChange}
-        options={transactionTypeOptions}
-      />
+    <div>
+      <form onSubmit={handleSubmit}>
+        <SelectComponent
+          label="Transaction type"
+          name="transactionType"
+          value={formData.header.ticketType || ''}
+          onChange={handleTransactionTypeChange}
+          options={transactionTypeOptions}
+        />
 
-      <TextFieldComponent
-        label="Master Prov ID"
-        name="profile.masterProvID"
-        value={formData.profile.masterProvID || ''}
-        onChange={handleChange}
-      />
+        <TextFieldComponent
+          label="Master Prov ID"
+          name="profile.masterProvID"
+          value={formData.profile.masterProvID || ''}
+          onChange={handleChange}
+        />
 
-      <SelectComponent
-        label="Description"
-        name="description"
-        value={getSelectedDescriptionLabel()} // Use the function to get the correct label
-        onChange={handleChange}
-        options={descriptionOptions}
-        disabled={!descriptionOptions.length} // Disable if no options available
-      />
+        <TextFieldComponent
+          label="LOB"
+          name="profile.lob"
+          value={formData.profile.lob || ''}
+          onChange={handleChange}
+        />
 
-      <button type="submit" disabled={loading}>
-        {loading ? 'Loading...' : 'Submit'}
-      </button>
-    </form>
+        <TextFieldComponent
+          label="Market"
+          name="profile.market"
+          value={formData.profile.market || ''}
+          onChange={handleChange}
+        />
+
+        <MultiSelectComponent
+          label="Description"
+          name="description"
+          value={getSelectedDescriptionLabels()}
+          onChange={handleChange}
+          options={descriptionOptions}
+          disabled={!descriptionOptions.length}
+        />
+
+        <button type="submit" disabled={loading}>
+          {loading ? 'Loading...' : 'Submit'}
+        </button>
+        <button type="button" onClick={handleClear}>
+          Clear
+        </button>
+      </form>
+
+      {/* Pass the data directly to NetworkTable via props */}
+      <NetworkTable transactionType={formData.header.ticketType} data={data} />
+    </div>
   );
 };
 

@@ -1,21 +1,20 @@
 import React from 'react';
-import { FormControl, InputLabel, Select, MenuItem, Checkbox, ListItemText } from '@mui/material';
+import { Checkbox, FormControl, InputLabel, MenuItem, ListItemText, Select } from '@mui/material';
 
-const MultiSelectComponent = ({ label, name, value, onChange, options = [] }) => {
+const MultiSelectComponent = ({ label, name, value, onChange, options, disabled }) => {
   return (
-    <FormControl fullWidth margin="normal">
+    <FormControl fullWidth>
       <InputLabel>{label}</InputLabel>
       <Select
-        label={label}
-        name={name}
-        value={value}
-        onChange={onChange}
         multiple
-        renderValue={(selected) => selected.join(', ')}
+        value={value}
+        onChange={(e) => onChange({ target: { name, value: e.target.value } })}
+        renderValue={(selected) => selected.join(', ')}  // Correctly render the selected values
+        disabled={disabled}
       >
         {options.map((option) => (
           <MenuItem key={option.value} value={option.value}>
-            <Checkbox checked={value.indexOf(option.value) > -1} />
+            <Checkbox checked={value.includes(option.value)} />
             <ListItemText primary={option.label} />
           </MenuItem>
         ))}

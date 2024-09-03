@@ -1,6 +1,11 @@
 export const add_linkage={
     "header":{
-        "ticketType":""
+        "ticketType":"",
+        "originalDetails":{
+            "sourceSystem":"",
+            "contractState":""
+        }
+        
     },
     "profile":{
         "masterProvID":"",
@@ -8,7 +13,18 @@ export const add_linkage={
             "typeCode":"",
             "typeCodeTxt":"",
             "taxID":"",
-            "taxonomyCd":""
+            "taxonomyCd":[]
+        
         }
-    }
+    },
+    "providerAddress":[
+        {
+            "address":{
+                "id":"",
+                "keyData":{
+                    "state":""
+                }
+            }
+        }
+    ]
 }
