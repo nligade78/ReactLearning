@@ -1,86 +1,65 @@
-import React, { useState } from 'react';
-import {
-  Card,
-  CardContent,
-  Container,
-  Button,
-  MenuItem,
-  Select,
-  Typography,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  TextField,
-  IconButton,
-} from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
+import React, { useState, useEffect } from 'react';
+import { Container, Card, CardContent, Typography, IconButton } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
+import FormCreator from './FormCreator';
+import DataTable from './DataTable';
+import TableSelector from './TableSelector';
 
-function Configurations() {
+const Configurations = () => {
   const [selectedTable, setSelectedTable] = useState('Table 1');
+  const [rowsTable1, setRowsTable1] = useState([]);
+  const [rowsTable2, setRowsTable2] = useState([]);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editRowData, setEditRowData] = useState({});
-  const [isNewRecord, setIsNewRecord] = useState(false); // To manage if we're adding a new record
+  const [isNewRecord, setIsNewRecord] = useState(false);
 
-  const initialRowsTable1 = [
-    { id: 1, name: 'John Doe', age: 35, occupation: 'Engineer', flag: 'Y' },
-    { id: 2, name: 'Jane Smith', age: 29, occupation: 'Doctor', flag: 'N' },
-  ];
+  useEffect(() => {
+    // Fetch data from API and set it for Table 1 and Table 2
+    fetch('https://jsonplaceholder.typicode.com/users')
+      .then((response) => response.json())
+      .then((data) => {
+        setRowsTable1(data.map(user => ({
+          id: user.id,
+          name: user.name,
+          username: user.username,
+          email: user.email,
+        })));
 
-  const initialRowsTable2 = [
-    { id: 1, product: 'Laptop', price: 1200, quantity: 10, discount: 10, taxable: 'Yes' },
-    { id: 2, product: 'Phone', price: 800, quantity: 20, discount: 15, taxable: 'No' },
-  ];
-
-  const [rowsTable1, setRowsTable1] = useState(initialRowsTable1);
-  const [rowsTable2, setRowsTable2] = useState(initialRowsTable2);
+        setRowsTable2(data.map(user => ({
+          id: user.id,
+          street: user.address.street,
+          suite: user.address.suite,
+          city: user.address.city,
+          zipcode: user.address.zipcode,
+        })));
+      });
+  }, []);
 
   const columnsTable1 = [
-    {
-      field: 'actions',
-      headerName: 'Actions',
-      width: 100,
-      renderCell: (params) => (
-        <IconButton
-          aria-label="edit"
-          onClick={() => handleEdit(params.row)}
-          color="primary"
-        >
-          <EditIcon />
-        </IconButton>
-      ),
-    },
-    { field: 'name', headerName: 'Name', width: 150, editable: isNewRecord },
-    { field: 'age', headerName: 'Age', width: 110, editable: isNewRecord },
-    { field: 'occupation', headerName: 'Occupation', width: 150, editable: isNewRecord },
-    { field: 'flag', headerName: 'Flag', width: 110, editable: true },
+    { field: 'actions', headerName: 'Actions', width: 100, renderCell: (params) => (
+      <IconButton onClick={() => handleEdit(params.row)} color="primary">
+        <EditIcon />
+      </IconButton>
+    )},
+    { field: 'name', headerName: 'Name', width: 150, editable: false },
+    { field: 'username', headerName: 'Username', width: 150, editable: false },
+    { field: 'email', headerName: 'Email', width: 200, editable: true }, // Only this column is editable
   ];
 
   const columnsTable2 = [
-    {
-      field: 'actions',
-      headerName: 'Actions',
-      width: 100,
-      renderCell: (params) => (
-        <IconButton
-          aria-label="edit"
-          onClick={() => handleEdit(params.row)}
-          color="primary"
-        >
-          <EditIcon />
-        </IconButton>
-      ),
-    },
-    { field: 'product', headerName: 'Product', width: 150, editable: isNewRecord },
-    { field: 'price', headerName: 'Price', width: 110, editable: isNewRecord },
-    { field: 'quantity', headerName: 'Quantity', width: 110, editable: isNewRecord },
-    { field: 'discount', headerName: 'Discount (%)', width: 110, editable: true },
-    { field: 'taxable', headerName: 'Taxable', width: 110, editable: true },
+    { field: 'actions', headerName: 'Actions', width: 100, renderCell: (params) => (
+      <IconButton onClick={() => handleEdit(params.row)} color="primary">
+        <EditIcon />
+      </IconButton>
+    )},
+    { field: 'street', headerName: 'Street', width: 150, editable: false },
+    { field: 'suite', headerName: 'Suite', width: 150, editable: false },
+    { field: 'city', headerName: 'City', width: 150, editable: true }, // Editable
+    { field: 'zipcode', headerName: 'Zipcode', width: 150, editable: true }, // Editable
   ];
 
-  const handleTableChange = (event) => {
-    setSelectedTable(event.target.value);
+  const handleTableChange = (table) => {
+    setSelectedTable(table);
   };
 
   const handleEdit = (row) => {
@@ -95,166 +74,93 @@ function Configurations() {
     setEditDialogOpen(true);
   };
 
-  const handleSave = () => {
-    if (isNewRecord) {
-      if (selectedTable === 'Table 1') {
-        setRowsTable1([...rowsTable1, { ...editRowData, id: rowsTable1.length + 1 }]);
-      } else {
-        setRowsTable2([...rowsTable2, { ...editRowData, id: rowsTable2.length + 1 }]);
+  const handleSave = async (rowData) => {
+    try {
+      const url = 'https://jsonplaceholder.typicode.com/users'; // Replace with your actual endpoint
+
+      const jsonPayload = selectedTable === 'Table 1' 
+        ? {
+            id: rowData.id,
+            name: rowData.name,
+            username: rowData.username,
+            email: rowData.email,
+          }
+        : {
+            id: rowData.id,
+            address: {
+              street: rowData.street,
+              suite: rowData.suite,
+              city: rowData.city,
+              zipcode: rowData.zipcode,
+            },
+          };
+
+      const response = await fetch(url, {
+        method: isNewRecord ? 'POST' : 'PUT', // Use POST for new records, PUT for updates
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(jsonPayload),
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
       }
-    } else {
-      const { id } = editRowData;
-      if (selectedTable === 'Table 1') {
-        setRowsTable1((prevRows) =>
-          prevRows.map((row) => (row.id === id ? editRowData : row))
-        );
+
+      const updatedData = await response.json();
+      console.log(updatedData,"respo");
+
+      if (isNewRecord) {
+        if (selectedTable === 'Table 1') {
+          setRowsTable1([...rowsTable1, { ...rowData, id: updatedData.id }]);
+        } else {
+          setRowsTable2([...rowsTable2, { ...rowData, id: updatedData.id }]);
+        }
       } else {
-        setRowsTable2((prevRows) =>
-          prevRows.map((row) => (row.id === id ? editRowData : row))
-        );
+        if (selectedTable === 'Table 1') {
+          setRowsTable1(rowsTable1.map((row) => (row.id === rowData.id ? rowData : row)));
+        } else {
+          setRowsTable2(rowsTable2.map((row) => (row.id === rowData.id ? rowData : row)));
+        }
       }
+
+      setEditDialogOpen(false);
+    } catch (error) {
+      console.error('Failed to save record:', error);
     }
+  };
+
+  const handleCloseDialog = () => {
     setEditDialogOpen(false);
   };
 
   return (
-    <Container maxWidth="lg" sx={{ margin: '20px auto', padding: '0' }}>
-      <Select
-        value={selectedTable}
-        onChange={handleTableChange}
-        sx={{ marginBottom: 2, width: '100%' }}
-      >
-        <MenuItem value="Table 1">Table 1</MenuItem>
-        <MenuItem value="Table 2">Table 2</MenuItem>
-      </Select>
-
-      <Button variant="contained" color="primary" onClick={handleAddNewRecord} sx={{ marginBottom: 2 }}>
-        Add New Record
-      </Button>
-
-      <Card sx={{ width: '100%' }}>
+    <Container>
+      <Card>
         <CardContent>
-          <div style={{ height: 400, width: '100%', overflowY: 'auto' }}>
-            <DataGrid
-              rows={selectedTable === 'Table 1' ? rowsTable1 : rowsTable2}
-              columns={selectedTable === 'Table 1' ? columnsTable1 : columnsTable2}
-              pageSize={5}
-              rowsPerPageOptions={[5]}
-            />
-          </div>
+          <Typography variant="h4">Configurations Page</Typography>
+          <TableSelector
+            selectedTable={selectedTable}
+            onTableChange={handleTableChange}
+            onAddNewRecord={handleAddNewRecord}
+          />
+          <DataTable
+            rows={selectedTable === 'Table 1' ? rowsTable1 : rowsTable2}
+            columns={selectedTable === 'Table 1' ? columnsTable1 : columnsTable2}
+            onEdit={handleEdit}
+          />
         </CardContent>
       </Card>
-
-      <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)}>
-        <DialogTitle>{isNewRecord ? 'Add New Record' : 'Edit Row'}</DialogTitle>
-        <DialogContent>
-          {selectedTable === 'Table 1' ? (
-            <>
-              <TextField
-                margin="dense"
-                label="Name"
-                value={editRowData.name || ''}
-                onChange={(e) =>
-                  setEditRowData({ ...editRowData, name: e.target.value })
-                }
-                fullWidth
-                disabled={!isNewRecord && !columnsTable1[1].editable}
-              />
-              <TextField
-                margin="dense"
-                label="Age"
-                value={editRowData.age || ''}
-                onChange={(e) =>
-                  setEditRowData({ ...editRowData, age: e.target.value })
-                }
-                fullWidth
-                disabled={!isNewRecord && !columnsTable1[2].editable}
-              />
-              <TextField
-                margin="dense"
-                label="Occupation"
-                value={editRowData.occupation || ''}
-                onChange={(e) =>
-                  setEditRowData({ ...editRowData, occupation: e.target.value })
-                }
-                fullWidth
-                disabled={!isNewRecord && !columnsTable1[3].editable}
-              />
-              <TextField
-                margin="dense"
-                label="Flag"
-                value={editRowData.flag || ''}
-                onChange={(e) =>
-                  setEditRowData({ ...editRowData, flag: e.target.value })
-                }
-                fullWidth
-                disabled={!columnsTable1[4].editable}
-              />
-            </>
-          ) : (
-            <>
-              <TextField
-                margin="dense"
-                label="Product"
-                value={editRowData.product || ''}
-                onChange={(e) =>
-                  setEditRowData({ ...editRowData, product: e.target.value })
-                }
-                fullWidth
-                disabled={!isNewRecord && !columnsTable2[1].editable}
-              />
-              <TextField
-                margin="dense"
-                label="Price"
-                value={editRowData.price || ''}
-                onChange={(e) =>
-                  setEditRowData({ ...editRowData, price: e.target.value })
-                }
-                fullWidth
-                disabled={!isNewRecord && !columnsTable2[2].editable}
-              />
-              <TextField
-                margin="dense"
-                label="Quantity"
-                value={editRowData.quantity || ''}
-                onChange={(e) =>
-                  setEditRowData({ ...editRowData, quantity: e.target.value })
-                }
-                fullWidth
-                disabled={!isNewRecord && !columnsTable2[3].editable}
-              />
-              <TextField
-                margin="dense"
-                label="Discount (%)"
-                value={editRowData.discount || ''}
-                onChange={(e) =>
-                  setEditRowData({ ...editRowData, discount: e.target.value })
-                }
-                fullWidth
-                disabled={!columnsTable2[4].editable}
-              />
-              <TextField
-                margin="dense"
-                label="Taxable"
-                value={editRowData.taxable || ''}
-                onChange={(e) =>
-                  setEditRowData({ ...editRowData, taxable: e.target.value })
-                }
-                fullWidth
-                disabled={!columnsTable2[5].editable}
-              />
-            </>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setEditDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleSave} color="primary">
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <FormCreator
+        open={editDialogOpen}
+        onClose={handleCloseDialog}
+        rowData={editRowData}
+        onSave={handleSave}
+        isNewRecord={isNewRecord}
+        table={selectedTable}
+      />
     </Container>
   );
-}
+};
 
 export default Configurations;
