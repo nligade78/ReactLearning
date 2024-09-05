@@ -54,8 +54,8 @@ function ResponsiveAppBar({ user }) {
     handleCloseUserMenu();
     if (setting === 'Configurations') {
       navigate('/configurations');
-    } else if (setting === 'FormCreator') {
-      navigate('/formCreator');
+    } else if (setting === 'SearchNetwork') {
+      navigate('/searchNetwork');
     }
   };
 
@@ -64,8 +64,8 @@ function ResponsiveAppBar({ user }) {
   // Determine the active sub-page based on the current URL
   const activeSubPage = location.pathname.includes('/configurations')
     ? 'Configurations'
-    : location.pathname.includes('/formCreator')
-    ? 'FormCreator'
+    : location.pathname.includes('/searchNetwork')
+    ? 'SearchNetwork'
     : '';
 
   return (
@@ -201,7 +201,7 @@ function ResponsiveAppBar({ user }) {
                 open={Boolean(anchorElSubMenu)}
                 onClose={handleCloseSubMenu}
               >
-                {['Configurations', 'FormCreator'].map((subPage) => (
+                {['SearchNetwork', 'Configurations'].map((subPage) => (
                   <MenuItem key={subPage} onClick={() => handleMenuItemClick(subPage)}>
                     <Typography sx={{ display: 'flex', alignItems: 'center', textAlign: 'center' }}>
                       {subPage}
