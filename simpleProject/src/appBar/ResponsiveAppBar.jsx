@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -12,12 +12,18 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
+import CircleIcon from '@mui/icons-material/Circle';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const pages = ['Products', 'Pricing', 'Blog'];
 
 function ResponsiveAppBar({ user }) {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const [anchorElSubMenu, setAnchorElSubMenu] = React.useState(null);
+
+  const navigate = useNavigate();
+  const location = useLocation(); // Hook to get current route
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -33,15 +39,34 @@ function ResponsiveAppBar({ user }) {
 
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
+    setAnchorElSubMenu(null);
   };
 
-  // Create dynamic settings based on user details
-  const settings = [
-    ` ${user?.Name || 'User'}`, // Greet the user
-    'Account Settings',
-    'Dashboard',
-    'Logout'
-  ];
+  const handleOpenSubMenu = (event) => {
+    setAnchorElSubMenu(event.currentTarget);
+  };
+
+  const handleCloseSubMenu = () => {
+    setAnchorElSubMenu(null);
+  };
+
+  const handleMenuItemClick = (setting) => {
+    handleCloseUserMenu();
+    if (setting === 'Configurations') {
+      navigate('/configurations');
+    } else if (setting === 'FormCreator') {
+      navigate('/formCreator');
+    }
+  };
+
+  const settings = [`${user?.Name || 'User'}`, 'Show Pages'];
+
+  // Determine the active sub-page based on the current URL
+  const activeSubPage = location.pathname.includes('/configurations')
+    ? 'Configurations'
+    : location.pathname.includes('/formCreator')
+    ? 'FormCreator'
+    : '';
 
   return (
     <AppBar position="static">
@@ -153,10 +178,40 @@ function ResponsiveAppBar({ user }) {
               onClose={handleCloseUserMenu}
             >
               {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                <MenuItem
+                  key={setting}
+                  onClick={setting === 'Show Pages' ? handleOpenSubMenu : handleCloseUserMenu}
+                >
                   <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
                 </MenuItem>
               ))}
+              <Menu
+                sx={{ mt: '45px' }}
+                id="submenu-appbar"
+                anchorEl={anchorElSubMenu}
+                anchorOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                open={Boolean(anchorElSubMenu)}
+                onClose={handleCloseSubMenu}
+              >
+                {['Configurations', 'FormCreator'].map((subPage) => (
+                  <MenuItem key={subPage} onClick={() => handleMenuItemClick(subPage)}>
+                    <Typography sx={{ display: 'flex', alignItems: 'center', textAlign: 'center' }}>
+                      {subPage}
+                      {activeSubPage === subPage && (
+                        <CircleIcon sx={{ color: 'green', fontSize: 12, ml: 1 }} />
+                      )}
+                    </Typography>
+                  </MenuItem>
+                ))}
+              </Menu>
             </Menu>
           </Box>
         </Toolbar>
