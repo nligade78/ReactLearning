@@ -20,10 +20,9 @@ const pages = ['Products', 'Pricing', 'Blog'];
 function ResponsiveAppBar({ userInfo }) {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
-  const [anchorElSubMenu, setAnchorElSubMenu] = React.useState(null);
 
   const navigate = useNavigate();
-  const location = useLocation(); // Hook to get current route
+  const location = useLocation();
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -39,15 +38,6 @@ function ResponsiveAppBar({ userInfo }) {
 
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
-    setAnchorElSubMenu(null);
-  };
-
-  const handleOpenSubMenu = (event) => {
-    setAnchorElSubMenu(event.currentTarget);
-  };
-
-  const handleCloseSubMenu = () => {
-    setAnchorElSubMenu(null);
   };
 
   const handleMenuItemClick = (setting) => {
@@ -60,7 +50,7 @@ function ResponsiveAppBar({ userInfo }) {
   };
 
   // Determine the available settings based on access
-  const settings = [`${userInfo?.given_name || 'User'}`, 'Show Pages'];
+  const settings = [`${userInfo?.given_name || 'User'}`];
   const accessiblePages = userInfo?.access || [];
 
   // Determine the active sub-page based on the current URL
@@ -180,40 +170,20 @@ function ResponsiveAppBar({ userInfo }) {
               onClose={handleCloseUserMenu}
             >
               {settings.map((setting) => (
-                <MenuItem
-                  key={setting}
-                  onClick={setting === 'Show Pages' ? handleOpenSubMenu : handleCloseUserMenu}
-                >
+                <MenuItem key={setting} onClick={handleCloseUserMenu}>
                   <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
                 </MenuItem>
               ))}
-              <Menu
-                sx={{ mt: '45px' }}
-                id="submenu-appbar"
-                anchorEl={anchorElSubMenu}
-                anchorOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-                open={Boolean(anchorElSubMenu)}
-                onClose={handleCloseSubMenu}
-              >
-                {accessiblePages.map((subPage) => (
-                  <MenuItem key={subPage} onClick={() => handleMenuItemClick(subPage)}>
-                    <Typography sx={{ display: 'flex', alignItems: 'center', textAlign: 'center' }}>
-                      {subPage}
-                      {activeSubPage === subPage && (
-                        <CircleIcon sx={{ color: 'green', fontSize: 12, ml: 1 }} />
-                      )}
-                    </Typography>
-                  </MenuItem>
-                ))}
-              </Menu>
+              {accessiblePages.map((subPage) => (
+                <MenuItem key={subPage} onClick={() => handleMenuItemClick(subPage)}>
+                  <Typography sx={{ display: 'flex', alignItems: 'center', textAlign: 'center' }}>
+                    {subPage}
+                    {activeSubPage === subPage && (
+                      <CircleIcon sx={{ color: 'green', fontSize: 12, ml: 1 }} />
+                    )}
+                  </Typography>
+                </MenuItem>
+              ))}
             </Menu>
           </Box>
         </Toolbar>
