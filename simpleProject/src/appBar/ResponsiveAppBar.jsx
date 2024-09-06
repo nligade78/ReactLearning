@@ -17,7 +17,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 
 const pages = ['Products', 'Pricing', 'Blog'];
 
-function ResponsiveAppBar({ user }) {
+function ResponsiveAppBar({ userInfo }) {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
   const [anchorElSubMenu, setAnchorElSubMenu] = React.useState(null);
@@ -59,7 +59,9 @@ function ResponsiveAppBar({ user }) {
     }
   };
 
-  const settings = [`${user?.Name || 'User'}`, 'Show Pages'];
+  // Determine the available settings based on access
+  const settings = [`${userInfo?.given_name || 'User'}`, 'Show Pages'];
+  const accessiblePages = userInfo?.access || [];
 
   // Determine the active sub-page based on the current URL
   const activeSubPage = location.pathname.includes('/configurations')
@@ -158,7 +160,7 @@ function ResponsiveAppBar({ user }) {
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt={user?.Name} src="/static/images/avatar/2.jpg" />
+                <Avatar alt={userInfo?.given_name} src="/static/images/avatar/2.jpg" />
               </IconButton>
             </Tooltip>
             <Menu
@@ -201,7 +203,7 @@ function ResponsiveAppBar({ user }) {
                 open={Boolean(anchorElSubMenu)}
                 onClose={handleCloseSubMenu}
               >
-                {['SearchNetwork', 'Configurations'].map((subPage) => (
+                {accessiblePages.map((subPage) => (
                   <MenuItem key={subPage} onClick={() => handleMenuItemClick(subPage)}>
                     <Typography sx={{ display: 'flex', alignItems: 'center', textAlign: 'center' }}>
                       {subPage}
