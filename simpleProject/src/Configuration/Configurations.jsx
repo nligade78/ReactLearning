@@ -134,7 +134,7 @@ const Configurations = () => {
     setEditDialogOpen(false);
   };
 
-  return (
+  return ( 
     <Container>
       <Card>
         <CardContent>

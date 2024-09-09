@@ -96,3 +96,5 @@ const FormCreator = ({ open, onClose, rowData, onSave, isNewRecord, table }) => 
 };
 
 export default FormCreator;
+
+

@@ -1,4 +1,4 @@
-export const add_linkage={
+export const add_address={
     "header":{
         "ticketType":"",
         "originalDetails":{
@@ -17,8 +17,8 @@ export const add_linkage={
     "profile":{
         "masterProvID":"",
         "keyData":{
-            "typeCode":"181",
-            "typeCodeTxt":"Individual",
+            "typeCode":"182",
+            "typeCodeTxt":"Originization",
             "taxID":"",
             "taxonomyCd":[]
         
@@ -27,6 +27,7 @@ export const add_linkage={
     "providerAddress":[
         {
             "address":{
+                "action":"",
                 "keyData":{
                     "typeCode":"",
                     "state":""
