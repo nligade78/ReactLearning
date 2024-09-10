@@ -15,70 +15,48 @@ function AuthProvider({ children }) {
 
   const url = 'http://localhost:3000/api/user'; // Replace with the actual API URL
 
+  // Fetch user data when the component mounts
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const response = await fetch(url, {
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch user data');
-        }
-
-        const data = await response.json();
-
-        if (data) {
-          setUser({
-            access: data.access || [],
-            name: data.name,
-            userName: data.userName || data.username,
-            given_name: data.given_name || data.name.split(' ')[0],
-            domainID: data.domainID || data.id,
-            firstName: data.firstName || data.name.split(' ')[0],
-            lastname: data.lastname || data.name.split(' ')[1] || '',
-            email: data.email,
-          });
+    setLoading(true);
+    fetch(url, {
+      credentials: 'include', // This allows sending cookies for authentication
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+    })
+      .then((response) => response.text())
+      .then((body) => {
+        if (body === '') {
+          setAuthenticated(false);
+        } else {
+          const userData = JSON.parse(body);
+          setUser(userData);
           setAuthenticated(true);
 
           // Redirect based on access
-          if (data.access.includes('SearchNetwork')) {
+          if (userData.access.includes('SearchNetwork')) {
             navigate('/searchNetwork', { replace: true });
-          } else if (data.access.includes('Configurations')) {
+          } else if (userData.access.includes('Configurations')) {
             navigate('/configurations', { replace: true });
           } else {
-            navigate('/'); // Default page if no specific access
+            navigate('/'); // Default route if no specific access
           }
-        } else {
-          setAuthenticated(false);
-          navigate('/'); // Redirect if not authenticated
         }
-      } catch (error) {
+        setLoading(false);
+      })
+      .catch((error) => {
         console.error('Error fetching user data:', error);
         setAuthenticated(false);
-        navigate('/'); // Redirect in case of error
-      } finally {
         setLoading(false);
-      }
-    };
-
-    fetchUserData();
+        navigate('/'); // Redirect to homepage on error
+      });
   }, [navigate]);
 
+  // Effect to handle access changes after the user is set
   useEffect(() => {
-    if (!user) {
-      setAuthenticated(false);
-      setLoading(false);
-      if (location.pathname !== '/') {
-        navigate('/', { replace: true });
-      }
-    } else {
+    if (user) {
       setAuthenticated(true);
-      setLoading(false);
-      // Redirect based on access if user is not on an allowed page
       if (user.access.includes('SearchNetwork') && location.pathname !== '/searchNetwork') {
         navigate('/searchNetwork', { replace: true });
       } else if (user.access.includes('Configurations') && location.pathname !== '/configurations') {
@@ -98,6 +76,13 @@ function AuthProvider({ children }) {
     } else if (page === 'Configurations' && user.access.includes('Configurations')) {
       navigate('/configurations', { replace: true });
     }
+  };
+
+  // Generate initials from the user's name
+  const getInitials = (name) => {
+    if (!name) return '';
+    const [firstName, lastName] = name.split(' ');
+    return `${firstName?.[0] || ''}${lastName?.[0] || ''}`.toUpperCase();
   };
 
   if (loading) {
@@ -127,7 +112,19 @@ function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider value={{ user, handlePageChange }}>
-      {children}
+      <ThemeProvider theme={defaultTheme}>
+        <Container>
+          <Box sx={{ marginTop: 2, display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+            <Avatar sx={{ bgcolor: 'primary.main' }}>
+              {getInitials(user?.name || user?.firstName || '')}
+            </Avatar>
+            <Typography sx={{ marginLeft: 2 }} variant="h6">
+              {user?.name || user?.firstName || 'User'}
+            </Typography>
+          </Box>
+          {children}
+        </Container>
+      </ThemeProvider>
     </AuthContext.Provider>
   );
 }
