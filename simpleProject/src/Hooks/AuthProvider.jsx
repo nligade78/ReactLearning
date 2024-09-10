@@ -43,7 +43,8 @@ function AuthProvider({ children }) {
             email: data.email,
           });
           setAuthenticated(true);
-          // Redirect to a specific page based on user access or default page
+
+          // Redirect based on access
           if (data.access.includes('SearchNetwork')) {
             navigate('/searchNetwork', { replace: true });
           } else if (data.access.includes('Configurations')) {
@@ -87,8 +88,8 @@ function AuthProvider({ children }) {
   }, [user, location.pathname, navigate]);
 
   const login = () => {
-    // Direct login request to a route that initiates authentication
-    window.location.href = 'http://localhost:3000/api/private';
+    // Redirect to your API endpoint for authentication
+    window.location.href = 'http://localhost:3000/api/private'; // Or your actual login endpoint
   };
 
   const handlePageChange = (page) => {
