@@ -13,7 +13,7 @@ function AuthProvider({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const url = 'http://localhost:3000/api/user'; // Replace with the actual Okta URL
+  const url = 'http://localhost:3000/api/user'; // Replace with the actual API URL
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -35,18 +35,22 @@ function AuthProvider({ children }) {
           setUser({
             access: data.access || [],
             name: data.name,
-            userName: data.userName || data.username, // dynamic based on received data
-            given_name: data.given_name || data.name.split(' ')[0], // dynamic split if 'given_name' doesn't exist
+            userName: data.userName || data.username,
+            given_name: data.given_name || data.name.split(' ')[0],
             domainID: data.domainID || data.id,
             firstName: data.firstName || data.name.split(' ')[0],
-            lastname: data.lastname || data.name.split(' ')[1] || '', // default empty string if no last name
+            lastname: data.lastname || data.name.split(' ')[1] || '',
             email: data.email,
           });
-          setAuthenticated(true); // User is authenticated
-
-          // Redirect to the page the user was trying to access, or default to '/'
-          const from = location.state?.from?.pathname || '/';
-          navigate(from, { replace: true });
+          setAuthenticated(true);
+          // Redirect to a specific page based on user access or default page
+          if (data.access.includes('SearchNetwork')) {
+            navigate('/searchNetwork', { replace: true });
+          } else if (data.access.includes('Configurations')) {
+            navigate('/configurations', { replace: true });
+          } else {
+            navigate('/'); // Default page if no specific access
+          }
         } else {
           setAuthenticated(false);
           navigate('/'); // Redirect if not authenticated
@@ -56,16 +60,43 @@ function AuthProvider({ children }) {
         setAuthenticated(false);
         navigate('/'); // Redirect in case of error
       } finally {
-        setLoading(false); // Always set loading to false once the fetch is done
+        setLoading(false);
       }
     };
 
     fetchUserData();
-  }, [navigate, location.state]);
+  }, [navigate]);
+
+  useEffect(() => {
+    if (!user) {
+      setAuthenticated(false);
+      setLoading(false);
+      if (location.pathname !== '/') {
+        navigate('/', { replace: true });
+      }
+    } else {
+      setAuthenticated(true);
+      setLoading(false);
+      // Redirect based on access if user is not on an allowed page
+      if (user.access.includes('SearchNetwork') && location.pathname !== '/searchNetwork') {
+        navigate('/searchNetwork', { replace: true });
+      } else if (user.access.includes('Configurations') && location.pathname !== '/configurations') {
+        navigate('/configurations', { replace: true });
+      }
+    }
+  }, [user, location.pathname, navigate]);
 
   const login = () => {
-    // Redirect to your authentication URL (Okta login or your custom login)
+    // Direct login request to a route that initiates authentication
     window.location.href = 'http://localhost:3000/api/private';
+  };
+
+  const handlePageChange = (page) => {
+    if (page === 'SearchNetwork' && user.access.includes('SearchNetwork')) {
+      navigate('/searchNetwork', { replace: true });
+    } else if (page === 'Configurations' && user.access.includes('Configurations')) {
+      navigate('/configurations', { replace: true });
+    }
   };
 
   if (loading) {
@@ -94,7 +125,7 @@ function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user }}>
+    <AuthContext.Provider value={{ user, handlePageChange }}>
       {children}
     </AuthContext.Provider>
   );
