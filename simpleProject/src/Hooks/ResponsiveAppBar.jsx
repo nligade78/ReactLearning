@@ -61,10 +61,11 @@ const ResponsiveAppBar = () => {
             LOGO
           </Typography>
 
+          {/* Mobile Menu Icon */}
           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
             <IconButton
               size="large"
-              aria-label="account of current user"
+              aria-label="open navigation menu"
               aria-controls="menu-appbar"
               aria-haspopup="true"
               onClick={handleOpenNavMenu}
@@ -88,10 +89,11 @@ const ResponsiveAppBar = () => {
               onClose={handleCloseNavMenu}
               sx={{ display: { xs: 'block', md: 'none' } }}
             >
-              {/* Mobile menu options can be added here if needed */}
+              {/* Mobile menu options */}
             </Menu>
           </Box>
 
+          {/* Mobile Logo */}
           <Typography
             variant="h5"
             noWrap
@@ -111,8 +113,12 @@ const ResponsiveAppBar = () => {
             LOGO
           </Typography>
 
-          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}></Box>
+          {/* Desktop Menu Items */}
+          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+            {/* Add additional desktop menu items here if needed */}
+          </Box>
 
+          {/* User Menu */}
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>

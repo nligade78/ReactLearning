@@ -42,7 +42,11 @@ function AuthProvider({ children }) {
             lastname: data.lastname || data.name.split(' ')[1] || '', // default empty string if no last name
             email: data.email,
           });
-          setAuthenticated(true); // Assume authentication is successful for testing purposes
+          setAuthenticated(true); // User is authenticated
+
+          // Redirect to the page the user was trying to access, or default to '/'
+          const from = location.state?.from?.pathname || '/';
+          navigate(from, { replace: true });
         } else {
           setAuthenticated(false);
           navigate('/'); // Redirect if not authenticated
@@ -57,43 +61,11 @@ function AuthProvider({ children }) {
     };
 
     fetchUserData();
-  }, [navigate]);
-
-  useEffect(() => {
-    if (!user) {
-      setAuthenticated(false);
-      setLoading(false);
-      if (location.pathname !== '/') {
-        navigate('/', { replace: true });
-      }
-    } else {
-      setAuthenticated(true);
-      setLoading(false);
-
-      // Redirect based on access if user is not on an allowed page
-      if (user.access.includes('SearchNetwork') && location.pathname !== '/searchNetwork' && location.pathname !== '/configurations') {
-        navigate('/searchNetwork', { replace: true });
-      } else if (
-        user.access.includes('Configurations') &&
-        !user.access.includes('SearchNetwork') &&
-        location.pathname !== '/configurations'
-      ) {
-        navigate('/configurations', { replace: true });
-      }
-    }
-  }, [user, location.pathname, navigate]);
+  }, [navigate, location.state]);
 
   const login = () => {
-    window.location.href = '/login';
-  };
-
-  const handlePageChange = (page) => {
-    // Manually navigate to the selected page
-    if (page === 'SearchNetwork' && user.access.includes('SearchNetwork')) {
-      navigate('/searchNetwork', { replace: true });
-    } else if (page === 'Configurations' && user.access.includes('Configurations')) {
-      navigate('/configurations', { replace: true });
-    }
+    // Redirect to your authentication URL (Okta login or your custom login)
+    window.location.href = 'http://localhost:3000/api/private';
   };
 
   if (loading) {
@@ -122,45 +94,11 @@ function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, handlePageChange }}>
+    <AuthContext.Provider value={{ user }}>
       {children}
-      {/* Example navigation controls */}
-      {/* <Button onClick={() => handlePageChange('SearchNetwork')}>Go to Search Network</Button>
-      <Button onClick={() => handlePageChange('Configurations')}>Go to Configurations</Button> */}
     </AuthContext.Provider>
   );
 }
 
 export { AuthContext };
 export default AuthProvider;
-
-
-
-useEffect(() => {
-  if (!user) {
-    // If user is not logged in, redirect to home page
-    setAuthenticated(false);
-    setLoading(false);
-    if (location.pathname !== '/') {
-      navigate('/', { replace: true });
-    }
-  } else {
-    // User is authenticated
-    setAuthenticated(true);
-    setLoading(false);
-
-    // Redirect based on user access
-    if (user.access.includes('SearchNetwork') && location.pathname !== '/searchNetwork') {
-      navigate('/searchNetwork', { replace: true });
-    } else if (user.access.includes('Configurations') && location.pathname !== '/configurations') {
-      navigate('/configurations', { replace: true });
-    } else if (
-      user.access.includes('SearchNetwork') &&
-      user.access.includes('Configurations') &&
-      !['/searchNetwork', '/configurations'].includes(location.pathname)
-    ) {
-      // If user has access to both but is not on either, default to SearchNetwork
-      navigate('/searchNetwork', { replace: true });
-    }
-  }
-}, [user, location.pathname, navigate]);

@@ -1,19 +1,28 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-import AuthProvider from './Hooks/AuthProvider';
-import ResponsiveAppBar from './Hooks/ResponsiveAppBar';
-import SearchNetwork from './Configuration/SearchNetwork';
-import Configurations from './Configuration/Configurations';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import AuthProvider, { AuthContext } from './AuthProvider'; // Assuming AuthProvider is in the same folder
+import SearchNetwork from './SearchNetwork'; // Your Search Network page
+import Configurations from './Configurations'; // Your Configurations page
+import ResponsiveAppBar from './ResponsiveAppBar'; // The Responsive AppBar
 
 function App() {
   return (
     <AuthProvider>
-      <ResponsiveAppBar />
-      <Routes>
-        <Route path="/searchNetwork" element={<SearchNetwork/>} />
-        <Route path="/configurations" element={<Configurations/>} />
-        {/* Add other routes as needed */}
-      </Routes>
+      <Router>
+        <AuthContext.Consumer>
+          {({ user }) => (
+            <>
+              {/* Render ResponsiveAppBar only when user is authenticated */}
+              {user && <ResponsiveAppBar user={user} />}
+              <Routes>
+                <Route path="/searchNetwork" element={<SearchNetwork />} />
+                <Route path="/configurations" element={<Configurations />} />
+                {/* You can add more routes here */}
+              </Routes>
+            </>
+          )}
+        </AuthContext.Consumer>
+      </Router>
     </AuthProvider>
   );
 }
