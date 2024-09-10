@@ -1,11 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useContext } from 'react';
 import { add_linkage } from '../InputPayload/add_linkage';
 import { add_address } from '../InputPayload/add_address';
 import { transactionTypeOptions } from '../Constants/Constants';
 import TextFieldComponent from '../InputesFields/TextFieldComponent';
 import SelectComponent from '../InputesFields/SelectComponent';
+import { AuthContext } from '../Hooks/AuthProvider';
 
-const SearchNetwork = ({ user }) => {
+
+const SearchNetwork = () => {
+  const { user } = useContext(AuthContext);
   console.log(user, "user");
   const [formData, setFormData] = useState(add_linkage);
   const [descriptionOptions, setDescriptionOptions] = useState([]);

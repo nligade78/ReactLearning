@@ -1,159 +1,5 @@
-// import React from 'react';
-// import { AppBar, Box, Toolbar, IconButton, Typography, Menu, Container, Avatar, Button, Tooltip, MenuItem } from '@mui/material';
-// import MenuIcon from '@mui/icons-material/Menu';
-// import AdbIcon from '@mui/icons-material/Adb';
-// import { useAuth } from '../AuthProvider';
-
-// const pages = ['Products', 'Pricing', 'Blog'];
-// const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
-
-// function ResponsiveAppBar() {
-//   const { user } = useAuth();
-//   console.log(user,"userDetailsNew");
-//   const [anchorElNav, setAnchorElNav] = React.useState(null);
-//   const [anchorElUser, setAnchorElUser] = React.useState(null);
-
-//   const handleOpenNavMenu = (event) => {
-//     setAnchorElNav(event.currentTarget);
-//   };
-//   const handleOpenUserMenu = (event) => {
-//     setAnchorElUser(event.currentTarget);
-//   };
-
-//   const handleCloseNavMenu = () => {
-//     setAnchorElNav(null);
-//   };
-
-//   const handleCloseUserMenu = () => {
-//     setAnchorElUser(null);
-//   };
-
-//   return (
-//     <AppBar position="static">
-//       <Container maxWidth="xl">
-//         <Toolbar disableGutters>
-//           <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
-//           <Typography
-//             variant="h6"
-//             noWrap
-//             component="a"
-//             href="#"
-//             sx={{
-//               mr: 2,
-//               display: { xs: 'none', md: 'flex' },
-//               fontFamily: 'monospace',
-//               fontWeight: 700,
-//               letterSpacing: '.3rem',
-//               color: 'inherit',
-//               textDecoration: 'none',
-//             }}
-//           >
-//             LOGO
-//           </Typography>
-
-//           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
-//             <IconButton
-//               size="large"
-//               aria-label="account of current user"
-//               aria-controls="menu-appbar"
-//               aria-haspopup="true"
-//               onClick={handleOpenNavMenu}
-//               color="inherit"
-//             >
-//               <MenuIcon />
-//             </IconButton>
-//             <Menu
-//               id="menu-appbar"
-//               anchorEl={anchorElNav}
-//               anchorOrigin={{
-//                 vertical: 'bottom',
-//                 horizontal: 'left',
-//               }}
-//               keepMounted
-//               transformOrigin={{
-//                 vertical: 'top',
-//                 horizontal: 'left',
-//               }}
-//               open={Boolean(anchorElNav)}
-//               onClose={handleCloseNavMenu}
-//               sx={{ display: { xs: 'block', md: 'none' } }}
-//             >
-//               {pages.map((page) => (
-//                 <MenuItem key={page} onClick={handleCloseNavMenu}>
-//                   <Typography textAlign="center">{page}</Typography>
-//                 </MenuItem>
-//               ))}
-//             </Menu>
-//           </Box>
-//           <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
-//           <Typography
-//             variant="h5"
-//             noWrap
-//             component="a"
-//             href="#"
-//             sx={{
-//               mr: 2,
-//               display: { xs: 'flex', md: 'none' },
-//               flexGrow: 1,
-//               fontFamily: 'monospace',
-//               fontWeight: 700,
-//               letterSpacing: '.3rem',
-//               color: 'inherit',
-//               textDecoration: 'none',
-//             }}
-//           >
-//             LOGO
-//           </Typography>
-//           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-//             {pages.map((page) => (
-//               <Button
-//                 key={page}
-//                 onClick={handleCloseNavMenu}
-//                 sx={{ my: 2, color: 'white', display: 'block' }}
-//               >
-//                 {page}
-//               </Button>
-//             ))}
-//           </Box>
-//           <Box sx={{ flexGrow: 0 }}>
-//             <Tooltip title="Open settings">
-//               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-//                 <Avatar alt={user?.name}  />
-//               </IconButton>
-//             </Tooltip>
-//             <Menu
-//               sx={{ mt: '45px' }}
-//               id="menu-appbar"
-//               anchorEl={anchorElUser}
-//               anchorOrigin={{
-//                 vertical: 'top',
-//                 horizontal: 'right',
-//               }}
-//               keepMounted
-//               transformOrigin={{
-//                 vertical: 'top',
-//                 horizontal: 'right',
-//               }}
-//               open={Boolean(anchorElUser)}
-//               onClose={handleCloseUserMenu}
-//             >
-//               {settings.map((setting) => (
-//                 <MenuItem key={setting} onClick={handleCloseUserMenu}>
-//                   <Typography textAlign="center">{setting}</Typography>
-//                 </MenuItem>
-//               ))}
-//             </Menu>
-//           </Box>
-//         </Toolbar>
-//       </Container>
-//     </AppBar>
-//   );
-// }
-
-// export default ResponsiveAppBar;
-
-
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -163,19 +9,16 @@ import Menu from '@mui/material/Menu';
 import MenuIcon from '@mui/icons-material/Menu';
 import Container from '@mui/material/Container';
 import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import { AuthContext } from './AuthProvider';
 
-const pages = ['Products', 'Pricing', 'Blog'];
-const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
-
-function ResponsiveAppBar() {
-  const [anchorElNav, setAnchorElNav] = React.useState(null);
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
-  const { user } = useContext(AuthContext); // Access user from context
+const ResponsiveAppBar = () => {
+  const [anchorElNav, setAnchorElNav] = useState(null);
+  const [anchorElUser, setAnchorElUser] = useState(null);
+  const { user } = useContext(AuthContext);
+  const location = useLocation();
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -193,6 +36,8 @@ function ResponsiveAppBar() {
     setAnchorElUser(null);
   };
 
+  const isCurrentPage = (pagePath) => location.pathname === pagePath;
+
   return (
     <AppBar position="static">
       <Container maxWidth="xl">
@@ -201,8 +46,8 @@ function ResponsiveAppBar() {
           <Typography
             variant="h6"
             noWrap
-            component="a"
-            href="#app-bar-with-responsive-menu"
+            component={Link}
+            to="/"
             sx={{
               mr: 2,
               display: { xs: 'none', md: 'flex' },
@@ -243,19 +88,15 @@ function ResponsiveAppBar() {
               onClose={handleCloseNavMenu}
               sx={{ display: { xs: 'block', md: 'none' } }}
             >
-              {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography sx={{ textAlign: 'center' }}>{page}</Typography>
-                </MenuItem>
-              ))}
+              {/* Mobile menu options can be added here if needed */}
             </Menu>
           </Box>
-          <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
+
           <Typography
             variant="h5"
             noWrap
-            component="a"
-            href="#app-bar-with-responsive-menu"
+            component={Link}
+            to="/"
             sx={{
               mr: 2,
               display: { xs: 'flex', md: 'none' },
@@ -269,17 +110,9 @@ function ResponsiveAppBar() {
           >
             LOGO
           </Typography>
-          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            {pages.map((page) => (
-              <Button
-                key={page}
-                onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: 'white', display: 'block' }}
-              >
-                {page}
-              </Button>
-            ))}
-          </Box>
+
+          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}></Box>
+
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
@@ -302,30 +135,48 @@ function ResponsiveAppBar() {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-              {user && (
-                <>
-                  <MenuItem>
-                    <Typography>{user.name}</Typography>
-                  </MenuItem>
-                  <MenuItem>
-                    <Typography>{user.email}</Typography>
-                  </MenuItem>
-                  <MenuItem>
-                    <Typography>{user.username}</Typography>
-                  </MenuItem>
-                </>
-              )}
-              {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
+              {user.access.includes('SearchNetwork') && (
+                <MenuItem component={Link} to="/searchNetwork" onClick={handleCloseUserMenu}>
+                  <Box display="flex" alignItems="center">
+                    <Typography sx={{ mr: 1 }}>SearchNetwork</Typography>
+                    {isCurrentPage('/searchNetwork') && (
+                      <Box
+                        component="span"
+                        sx={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: '50%',
+                          backgroundColor: 'green',
+                        }}
+                      />
+                    )}
+                  </Box>
                 </MenuItem>
-              ))}
+              )}
+              {user.access.includes('Configurations') && (
+                <MenuItem component={Link} to="/configurations" onClick={handleCloseUserMenu}>
+                  <Box display="flex" alignItems="center">
+                    <Typography sx={{ mr: 1 }}>Configurations</Typography>
+                    {isCurrentPage('/configurations') && (
+                      <Box
+                        component="span"
+                        sx={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: '50%',
+                          backgroundColor: 'green',
+                        }}
+                      />
+                    )}
+                  </Box>
+                </MenuItem>
+              )}
             </Menu>
           </Box>
         </Toolbar>
       </Container>
     </AppBar>
   );
-}
+};
 
 export default ResponsiveAppBar;
