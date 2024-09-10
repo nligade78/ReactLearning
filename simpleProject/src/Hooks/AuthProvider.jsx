@@ -13,7 +13,7 @@ function AuthProvider({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const url = ''; // Replace with the actual Okta URL
+  const url = 'http://localhost:3000/api/user'; // Replace with the actual Okta URL
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -133,3 +133,34 @@ function AuthProvider({ children }) {
 
 export { AuthContext };
 export default AuthProvider;
+
+
+
+useEffect(() => {
+  if (!user) {
+    // If user is not logged in, redirect to home page
+    setAuthenticated(false);
+    setLoading(false);
+    if (location.pathname !== '/') {
+      navigate('/', { replace: true });
+    }
+  } else {
+    // User is authenticated
+    setAuthenticated(true);
+    setLoading(false);
+
+    // Redirect based on user access
+    if (user.access.includes('SearchNetwork') && location.pathname !== '/searchNetwork') {
+      navigate('/searchNetwork', { replace: true });
+    } else if (user.access.includes('Configurations') && location.pathname !== '/configurations') {
+      navigate('/configurations', { replace: true });
+    } else if (
+      user.access.includes('SearchNetwork') &&
+      user.access.includes('Configurations') &&
+      !['/searchNetwork', '/configurations'].includes(location.pathname)
+    ) {
+      // If user has access to both but is not on either, default to SearchNetwork
+      navigate('/searchNetwork', { replace: true });
+    }
+  }
+}, [user, location.pathname, navigate]);
