@@ -1,11 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogActions, DialogContent, DialogTitle, TextField, Button } from '@mui/material';
+import SelectComponent from './SelectComponent'; // Assuming this is your custom select component
+
+const lobOptions = [
+  { label: 'LOB1', value: 'LOB1' },
+  { label: 'LOB2', value: 'LOB2' },
+  { label: 'LOB3', value: 'LOB3' },
+];
 
 const FormCreator = ({ open, onClose, rowData, onSave, isNewRecord, table }) => {
   const [formData, setFormData] = useState({});
 
   useEffect(() => {
-    setFormData(rowData);
+    setFormData(rowData); // Initialize formData with rowData
   }, [rowData]);
 
   const handleChange = (field, value) => {
@@ -49,6 +56,13 @@ const FormCreator = ({ open, onClose, rowData, onSave, isNewRecord, table }) => 
               fullWidth
               disabled={!isEditable('email')}
             />
+            <SelectComponent
+              label="LOB"
+              value={formData.LOB || ''}
+              onChange={(value) => handleChange('LOB', value)}
+              options={lobOptions}
+              disabled={!isEditable('LOB')}
+            />
           </>
         ) : (
           <>
@@ -88,13 +102,18 @@ const FormCreator = ({ open, onClose, rowData, onSave, isNewRecord, table }) => 
         )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="primary">Cancel</Button>
-        <Button onClick={() => onSave(formData)} color="primary">Save</Button>
+        <Button onClick={onClose} color="primary">
+          Cancel
+        </Button>
+        <Button
+          onClick={() => onSave(formData)}
+          color="primary"
+        >
+          Save
+        </Button>
       </DialogActions>
     </Dialog>
   );
 };
 
 export default FormCreator;
-
-
