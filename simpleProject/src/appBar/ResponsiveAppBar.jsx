@@ -8,9 +8,9 @@ import Menu from '@mui/material/Menu';
 import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
+import CircleIcon from '@mui/icons-material/Circle'; // For green dot
 import { AuthContext } from '../hooks/AuthProvider';
 import { useNavigate } from 'react-router-dom';
-import CircleIcon from '@mui/icons-material/Circle'; // For green dot
 
 function ResponsiveAppBar() {
   const { user } = useContext(AuthContext);
@@ -55,14 +55,19 @@ function ResponsiveAppBar() {
             open={Boolean(anchorElUser)}
             onClose={handleCloseUserMenu}
           >
-            {settings.map((setting) => (
-              <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
-                <CircleIcon 
-                  sx={{ color: 'green', fontSize: '0.8rem', ml: 1 }} 
-                />
-              </MenuItem>
-            ))}
+            {settings.map((setting) => {
+              const pagePath = "/" + setting.toLowerCase().replace(" ", "");
+              const isActive = window.location.pathname === pagePath;
+
+              return (
+                <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                  <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
+                  {isActive && (
+                    <CircleIcon sx={{ color: 'green', fontSize: '0.8rem', ml: 1 }} />
+                  )}
+                </MenuItem>
+              );
+            })}
           </Menu>
         </Box>
       </Toolbar>
