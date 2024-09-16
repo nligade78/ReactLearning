@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Card, CardContent, Typography, IconButton } from '@mui/material';
+import { Container, Card, CardContent, Typography, IconButton, Dialog, DialogActions, DialogContent, DialogTitle, Button } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
-import FormCreator from './FormCreator'; // Modal form component
 import DataTable from './DataTable'; // Table component with DataGrid
 import TableSelector from './TableSelector'; // Table selector component
+import FormCreator from './FormCreator'; // Modal form component
 
 const Configurations = () => {
   const [selectedTable, setSelectedTable] = useState('Table 1');
@@ -12,6 +12,8 @@ const Configurations = () => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editRowData, setEditRowData] = useState({});
   const [isNewRecord, setIsNewRecord] = useState(false);
+  const [errorDialogOpen, setErrorDialogOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     // Fetch data for Table 1
@@ -71,7 +73,7 @@ const Configurations = () => {
     },
     { field: 'name', headerName: 'Name', width: 150, editable: false },
     { field: 'username', headerName: 'Username', width: 150, editable: false },
-    { field: 'email', headerName: 'Email', width: 200, editable: true }, // Only email is editable
+    { field: 'email', headerName: 'Email', width: 200, editable: true },
   ];
 
   const columnsTable2 = [
@@ -87,8 +89,8 @@ const Configurations = () => {
     },
     { field: 'street', headerName: 'Street', width: 150, editable: false },
     { field: 'suite', headerName: 'Suite', width: 150, editable: false },
-    { field: 'city', headerName: 'City', width: 150, editable: true }, // Editable
-    { field: 'zipcode', headerName: 'Zipcode', width: 150, editable: true }, // Editable
+    { field: 'city', headerName: 'City', width: 150, editable: true },
+    { field: 'zipcode', headerName: 'Zipcode', width: 150, editable: true },
   ];
 
   const handleTableChange = (table) => {
@@ -107,112 +109,47 @@ const Configurations = () => {
     setEditDialogOpen(true);
   };
 
-  const handleSaveAutomation = async (rowData) => {
-    try {
-      const url = 'automationnewUrl'; // Use your actual automation URL here
-      const jsonPayload = {
-        id: rowData.id || 'new', // Use 'new' if the id is not provided
-        name: rowData.name,
-        username: rowData.username,
-        email: rowData.email,
-        LOB: rowData.LOB,
-        user_id: rowData.user_id,
-      };
-
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(jsonPayload),
-      });
-
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-
-      const updatedData = await response.json();
-      const newId = updatedData.id || rowData.id; // Get new ID from the response if available
-
-      if (isNewRecord) {
-        setRowsTable1([...rowsTable1, { ...rowData, id: newId }]);
-      } else {
-        setRowsTable1(rowsTable1.map((row) => (row.id === rowData.id ? { ...rowData, id: newId } : row)));
-      }
-
-      setEditDialogOpen(false);
-    } catch (error) {
-      console.error('Failed to save record:', error);
-    }
-  };
-
-  const handleSaveContiguous = async (rowData) => {
-    try {
-      const url = 'contiguousnewUrl'; // Use your actual contiguous URL here
-      const jsonPayload = {
-        id: rowData.id || 'new', // Use 'new' if the id is not provided
-        address: {
-          street: rowData.street,
-          suite: rowData.suite,
-          city: rowData.city,
-          zipcode: rowData.zipcode,
-          user_id: rowData.user_id,
-        },
-      };
-
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(jsonPayload),
-      });
-
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-
-      const updatedData = await response.json();
-      const newId = updatedData.id || rowData.id; // Get new ID from the response if available
-
-      if (isNewRecord) {
-        setRowsTable2([...rowsTable2, { ...rowData, id: newId }]);
-      } else {
-        setRowsTable2(rowsTable2.map((row) => (row.id === rowData.id ? { ...rowData, id: newId } : row)));
-      }
-
-      setEditDialogOpen(false);
-    } catch (error) {
-      console.error('Failed to save record:', error);
-    }
-  };
-
-  const handleSave = (rowData) => {
-    if (selectedTable === 'Table 1') {
-      handleSaveAutomation(rowData);
-    } else {
-      handleSaveContiguous(rowData);
-    }
-  };
-
   const handleCloseDialog = () => {
     setEditDialogOpen(false);
+  };
+
+  const handleSave = (data) => {
+    // Validate zipcode for Table 2 if it's a new record
+    if (selectedTable === 'Table 2' && isNewRecord && (data.zipcode || '').length !== 5) {
+      setErrorMessage('Zipcode must be exactly 5 digits.');
+      setErrorDialogOpen(true);
+      return;
+    }
+
+    // Save data logic
+    if (selectedTable === 'Table 1') {
+      setRowsTable1((prev) =>
+        prev.map((row) => (row.id === data.id ? data : row))
+      );
+    } else if (selectedTable === 'Table 2') {
+      setRowsTable2((prev) =>
+        prev.map((row) => (row.id === data.id ? data : row))
+      );
+    }
+    setEditDialogOpen(false);
+  };
+
+  const handleErrorClose = () => {
+    setErrorDialogOpen(false);
   };
 
   return (
     <Container>
       <Card>
         <CardContent>
-          <Typography variant="h4">Configurations Page</Typography>
-          <TableSelector
-            selectedTable={selectedTable}
-            onTableChange={handleTableChange}
-            onAddNewRecord={handleAddNewRecord}
-          />
+          <Typography variant="h6">Configurations</Typography>
+          <TableSelector onChange={handleTableChange} />
+          <Button variant="contained" color="primary" onClick={handleAddNewRecord}>
+            Add New Record
+          </Button>
           <DataTable
             rows={selectedTable === 'Table 1' ? rowsTable1 : rowsTable2}
             columns={selectedTable === 'Table 1' ? columnsTable1 : columnsTable2}
-            onEdit={handleEdit}
           />
         </CardContent>
       </Card>
@@ -223,7 +160,17 @@ const Configurations = () => {
         onSave={handleSave}
         isNewRecord={isNewRecord}
         table={selectedTable}
+       
       />
+      <Dialog open={errorDialogOpen} onClose={handleErrorClose}>
+        <DialogTitle>Error</DialogTitle>
+        <DialogContent>{errorMessage}</DialogContent>
+        <DialogActions>
+          <Button onClick={handleErrorClose} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };
