@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogActions, DialogContent, DialogTitle, TextField, Button } from '@mui/material';
-import SelectComponent from '../InputesFields/SelectComponent';
+import SelectComponent from './SelectComponent'; // Assuming this is your custom select component
 
 const lobOptions = [
   { label: 'LOB1', value: 'LOB1' },
@@ -8,40 +8,32 @@ const lobOptions = [
   { label: 'LOB3', value: 'LOB3' },
 ];
 
-const FormCreator = ({ open, onClose, rowData, onSave, isNewRecord, table }) => {
+const FormCreator = ({ open, onClose, rowData, onSave, isNewRecord, table, setTouched }) => {
   const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
+
+  const [touched, setTouched] = useState({}); // To track touched fields
 
   useEffect(() => {
     setFormData(rowData || {}); // Initialize formData with rowData
     setErrors({}); // Clear errors when rowData changes
+
   }, [rowData]);
 
   const handleChange = (field, value) => {
     setFormData({ ...formData, [field]: value });
-    setErrors((prev) => ({ ...prev, [field]: '' })); // Clear error when user starts typing
-  };
+    setTouched((prev) => ({ ...prev, [field]: true })); // Mark field as touched
 
-  const validateFields = () => {
-    let newErrors = {};
-    if (table === 'Table 1') {
-      if (!formData.name) newErrors.name = 'Name is required';
-      if (!formData.username) newErrors.username = 'Username is required';
-      if (!formData.email) newErrors.email = 'Email is required';
-      if (!formData.LOB) newErrors.LOB = 'LOB is required';
-    } else if (table === 'Table 2') {
-      if (!formData.street) newErrors.street = 'Street is required';
-      if (!formData.suite) newErrors.suite = 'Suite is required';
-      if (!formData.city) newErrors.city = 'City is required';
-      if (!formData.zipcode) newErrors.zipcode = 'Zipcode is required';
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSave = () => {
-    if (validateFields()) {
-      onSave(formData);
+    if (field === 'zipcode' && table === 'Table 2' && isNewRecord) {
+      const zipcode = value || '';
+      if (zipcode.length > 5) {
+        
+        setErrors({ ...errors, zipcode: 'Zipcode cannot be more than 5 digits.' });
+      } else {
+        setErrors({ ...errors, zipcode: '' });
+      }
+    } else {
+      setErrors({ ...errors, [field]: '' });
     }
   };
 
@@ -66,8 +58,6 @@ const FormCreator = ({ open, onClose, rowData, onSave, isNewRecord, table }) => 
               onChange={(e) => handleChange('name', e.target.value)}
               margin="normal"
               fullWidth
-              error={Boolean(errors.name)}
-              helperText={errors.name}
               disabled={!isNewRecord}
             />
             <TextField
@@ -76,8 +66,6 @@ const FormCreator = ({ open, onClose, rowData, onSave, isNewRecord, table }) => 
               onChange={(e) => handleChange('username', e.target.value)}
               margin="normal"
               fullWidth
-              error={Boolean(errors.username)}
-              helperText={errors.username}
               disabled={!isNewRecord}
             />
             <TextField
@@ -86,16 +74,12 @@ const FormCreator = ({ open, onClose, rowData, onSave, isNewRecord, table }) => 
               onChange={(e) => handleChange('email', e.target.value)}
               margin="normal"
               fullWidth
-              error={Boolean(errors.email)}
-              helperText={errors.email}
             />
             <SelectComponent
               label="LOB"
               options={lobOptions}
               value={formData.LOB || ''}
               onChange={(value) => handleChange('LOB', value)}
-              error={Boolean(errors.LOB)}
-              helperText={errors.LOB}
               disabled={!isNewRecord}
             />
           </>
@@ -108,8 +92,6 @@ const FormCreator = ({ open, onClose, rowData, onSave, isNewRecord, table }) => 
               onChange={(e) => handleChange('street', e.target.value)}
               margin="normal"
               fullWidth
-              error={Boolean(errors.street)}
-              helperText={errors.street}
             />
             <TextField
               label="Suite"
@@ -117,8 +99,6 @@ const FormCreator = ({ open, onClose, rowData, onSave, isNewRecord, table }) => 
               onChange={(e) => handleChange('suite', e.target.value)}
               margin="normal"
               fullWidth
-              error={Boolean(errors.suite)}
-              helperText={errors.suite}
             />
             <TextField
               label="City"
@@ -126,8 +106,6 @@ const FormCreator = ({ open, onClose, rowData, onSave, isNewRecord, table }) => 
               onChange={(e) => handleChange('city', e.target.value)}
               margin="normal"
               fullWidth
-              error={Boolean(errors.city)}
-              helperText={errors.city}
             />
             <TextField
               label="Zipcode"
@@ -146,7 +124,7 @@ const FormCreator = ({ open, onClose, rowData, onSave, isNewRecord, table }) => 
         <Button onClick={onClose} color="primary">
           Cancel
         </Button>
-        <Button onClick={handleSave} color="primary">
+        <Button onClick={() => onSave(formData)} color="primary">
           Save
         </Button>
       </DialogActions>

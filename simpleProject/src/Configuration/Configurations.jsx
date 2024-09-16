@@ -121,6 +121,17 @@ const Configurations = () => {
       return;
     }
 
+    if(selectedTable === '2')
+    {
+      var zip= "" + rowData.ZIP_CD;
+      if(zip.length !=5)
+      {
+      setErrorMessage('Zipcode must be exactly 5 digits.');
+      setErrorDialogOpen(true);
+      return;
+      }
+    }
+
     // Save data logic
     if (selectedTable === 'Table 1') {
       setRowsTable1((prev) =>
@@ -170,6 +181,7 @@ const Configurations = () => {
             Close
           </Button>
         </DialogActions>
+        
       </Dialog>
     </Container>
   );
