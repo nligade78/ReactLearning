@@ -1,9 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Card, CardContent, Typography, IconButton, Dialog, DialogActions, DialogContent, DialogTitle, Button } from '@mui/material';
+import {
+  Container,
+  Typography,
+  IconButton,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Button,
+} from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DataTable from './DataTable'; // Table component with DataGrid
 import TableSelector from './TableSelector'; // Table selector component
 import FormCreator from './FormCreator'; // Modal form component
+import ResponsiveCard from '../Components/ResponsiveCard';
 
 const Configurations = () => {
   const [selectedTable, setSelectedTable] = useState('Table 1');
@@ -17,12 +27,12 @@ const Configurations = () => {
 
   useEffect(() => {
     // Fetch data for Table 1
-    fetch('automationUrl', {
-      method: 'POST',
+    fetch('https://jsonplaceholder.typicode.com/users', {
+      method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ configFlag: 'Automation' }),
+      // body: JSON.stringify({ configFlag: 'Automation' }),
     })
       .then((response) => response.json())
       .then((data) => {
@@ -121,17 +131,6 @@ const Configurations = () => {
       return;
     }
 
-    if(selectedTable === '2')
-    {
-      var zip= "" + rowData.ZIP_CD;
-      if(zip.length !=5)
-      {
-      setErrorMessage('Zipcode must be exactly 5 digits.');
-      setErrorDialogOpen(true);
-      return;
-      }
-    }
-
     // Save data logic
     if (selectedTable === 'Table 1') {
       setRowsTable1((prev) =>
@@ -151,19 +150,19 @@ const Configurations = () => {
 
   return (
     <Container>
-      <Card>
-        <CardContent>
-          <Typography variant="h6">Configurations</Typography>
-          <TableSelector onChange={handleTableChange} />
-          <Button variant="contained" color="primary" onClick={handleAddNewRecord}>
-            Add New Record
-          </Button>
-          <DataTable
-            rows={selectedTable === 'Table 1' ? rowsTable1 : rowsTable2}
-            columns={selectedTable === 'Table 1' ? columnsTable1 : columnsTable2}
-          />
-        </CardContent>
-      </Card>
+      {/* Replaced Card with ResponsiveCard */}
+      <ResponsiveCard>
+        <Typography variant="h6">Configurations</Typography>
+        <TableSelector onChange={handleTableChange} />
+        <Button variant="contained" color="primary" onClick={handleAddNewRecord}>
+          Add New Record
+        </Button>
+        <DataTable
+          rows={selectedTable === 'Table 1' ? rowsTable1 : rowsTable2}
+          columns={selectedTable === 'Table 1' ? columnsTable1 : columnsTable2}
+        />
+      </ResponsiveCard>
+
       <FormCreator
         open={editDialogOpen}
         onClose={handleCloseDialog}
@@ -171,7 +170,6 @@ const Configurations = () => {
         onSave={handleSave}
         isNewRecord={isNewRecord}
         table={selectedTable}
-       
       />
       <Dialog open={errorDialogOpen} onClose={handleErrorClose}>
         <DialogTitle>Error</DialogTitle>
@@ -181,7 +179,6 @@ const Configurations = () => {
             Close
           </Button>
         </DialogActions>
-        
       </Dialog>
     </Container>
   );
