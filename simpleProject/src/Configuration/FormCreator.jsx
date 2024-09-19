@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogActions, DialogContent, DialogTitle, TextField, Button } from '@mui/material';
-import SelectComponent from './SelectComponent'; // Assuming this is your custom select component
+import { Dialog, DialogActions, DialogContent, DialogTitle, Button } from '@mui/material';
+import TextFieldComponent from '../InputesFields/TextFieldComponent';
+import SelectComponent from '../InputesFields/SelectComponent';
 
 const lobOptions = [
   { label: 'LOB1', value: 'LOB1' },
@@ -8,40 +9,53 @@ const lobOptions = [
   { label: 'LOB3', value: 'LOB3' },
 ];
 
-const FormCreator = ({ open, onClose, rowData, onSave, isNewRecord, table, setTouched }) => {
+const FormCreator = ({ open, onClose, rowData, onSave, isNewRecord, table }) => {
   const [formData, setFormData] = useState({});
+  const [touched, setTouched] = useState({}); // Tracks which fields have been touched
   const [errors, setErrors] = useState({});
-
-  const [touched, setTouched] = useState({}); // To track touched fields
+  const [isSaveDisabled, setIsSaveDisabled] = useState(true); // Save button state
 
   useEffect(() => {
     setFormData(rowData || {}); // Initialize formData with rowData
+    setTouched({}); // Reset touched state when rowData changes
     setErrors({}); // Clear errors when rowData changes
-
+    setIsSaveDisabled(true); // Disable save button initially
   }, [rowData]);
 
-  const handleChange = (field, value) => {
-    setFormData({ ...formData, [field]: value });
-    setTouched((prev) => ({ ...prev, [field]: true })); // Mark field as touched
+  // Function to compare formData with original rowData
+  const isFormDataChanged = (newFormData) => {
+    return JSON.stringify(newFormData) !== JSON.stringify(rowData);
+  };
 
-    if (field === 'zipcode' && table === 'Table 2' && isNewRecord) {
+  const handleChange = (field, value) => {
+    const updatedFormData = { ...formData, [field]: value };
+
+    // Update form data and touched state
+    setFormData(updatedFormData);
+    setTouched({ ...touched, [field]: true });
+
+    // Validate specific fields (zipcode in this case)
+    if (field === 'zipcode' && table === 'Table 2') {
       const zipcode = value || '';
       if (zipcode.length > 5) {
-        
         setErrors({ ...errors, zipcode: 'Zipcode cannot be more than 5 digits.' });
       } else {
         setErrors({ ...errors, zipcode: '' });
       }
-    } else {
-      setErrors({ ...errors, [field]: '' });
     }
+
+    // Enable/Disable the save button based on changes
+    setIsSaveDisabled(!isFormDataChanged(updatedFormData));
   };
 
   const handleBlur = (field) => {
-    if (field === 'zipcode' && table === 'Table 2' && isNewRecord) {
-      const zipcode = formData.zipcode || '';
-      if (zipcode.length > 0 && !/^\d{5}$/.test(zipcode)) {
-        setErrors({ ...errors, zipcode: 'Zipcode must be exactly 5 digits.' });
+    // Only validate the field if it has been touched
+    if (touched[field]) {
+      if (field === 'zipcode' && table === 'Table 2') {
+        const zipcode = formData.zipcode || '';
+        if (zipcode.length > 0 && !/^\d{5}$/.test(zipcode)) {
+          setErrors({ ...errors, zipcode: 'Zipcode must be exactly 5 digits.' });
+        }
       }
     }
   };
@@ -52,28 +66,31 @@ const FormCreator = ({ open, onClose, rowData, onSave, isNewRecord, table, setTo
       <DialogContent>
         {table === 'Table 1' && (
           <>
-            <TextField
+            <TextFieldComponent
               label="Name"
               value={formData.name || ''}
               onChange={(e) => handleChange('name', e.target.value)}
               margin="normal"
               fullWidth
               disabled={!isNewRecord}
+              onBlur={() => setTouched({ ...touched, name: true })}
             />
-            <TextField
+            <TextFieldComponent
               label="Username"
               value={formData.username || ''}
               onChange={(e) => handleChange('username', e.target.value)}
               margin="normal"
               fullWidth
               disabled={!isNewRecord}
+              onBlur={() => setTouched({ ...touched, username: true })}
             />
-            <TextField
+            <TextFieldComponent
               label="Email"
               value={formData.email || ''}
               onChange={(e) => handleChange('email', e.target.value)}
               margin="normal"
               fullWidth
+              onBlur={() => setTouched({ ...touched, email: true })}
             />
             <SelectComponent
               label="LOB"
@@ -86,32 +103,38 @@ const FormCreator = ({ open, onClose, rowData, onSave, isNewRecord, table, setTo
         )}
         {table === 'Table 2' && (
           <>
-            <TextField
+            <TextFieldComponent
               label="Street"
               value={formData.street || ''}
               onChange={(e) => handleChange('street', e.target.value)}
               margin="normal"
               fullWidth
+              onBlur={() => setTouched({ ...touched, street: true })}
             />
-            <TextField
+            <TextFieldComponent
               label="Suite"
               value={formData.suite || ''}
               onChange={(e) => handleChange('suite', e.target.value)}
               margin="normal"
               fullWidth
+              onBlur={() => setTouched({ ...touched, suite: true })}
             />
-            <TextField
+            <TextFieldComponent
               label="City"
               value={formData.city || ''}
               onChange={(e) => handleChange('city', e.target.value)}
               margin="normal"
               fullWidth
+              onBlur={() => setTouched({ ...touched, city: true })}
             />
-            <TextField
+            <TextFieldComponent
               label="Zipcode"
               value={formData.zipcode || ''}
               onChange={(e) => handleChange('zipcode', e.target.value)}
-              onBlur={() => handleBlur('zipcode')}
+              onBlur={() => {
+                setTouched({ ...touched, zipcode: true });
+                handleBlur('zipcode');
+              }}
               margin="normal"
               fullWidth
               error={Boolean(errors.zipcode)}
@@ -124,7 +147,7 @@ const FormCreator = ({ open, onClose, rowData, onSave, isNewRecord, table, setTo
         <Button onClick={onClose} color="primary">
           Cancel
         </Button>
-        <Button onClick={() => onSave(formData)} color="primary">
+        <Button onClick={() => onSave(formData)} color="primary" disabled={isSaveDisabled}>
           Save
         </Button>
       </DialogActions>
