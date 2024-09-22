@@ -1,11 +1,10 @@
-// validation.js
 export const validateNumeric = (value) => /^[0-9]+$/.test(value);
 
 export const handleBlur = (e, setFormErrors) => {
   const { name, value } = e.target;
 
-  const fieldsRequiringNumericValidation = ['profile.masterProvID', 'profile.lob'];
-  if (fieldsRequiringNumericValidation.includes(name)) {
+  // Only validate if there's a value in the field
+  if (value) {
     if (!validateNumeric(value)) {
       setFormErrors((prevErrors) => ({
         ...prevErrors,
@@ -17,5 +16,11 @@ export const handleBlur = (e, setFormErrors) => {
         [name]: '',
       }));
     }
+  } else {
+    // Clear the error if the field is empty
+    setFormErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: '',
+    }));
   }
 };
