@@ -5,6 +5,7 @@ import SelectComponent from '../InputesFields/SelectComponent';
 import TextFieldComponent from '../InputesFields/TextFieldComponent';
 import { transactionTypeOptions } from '../Constants/Constants';
 import NetworkTable from '../Table/NetworkTable';
+import { handleBlur } from './validation'; // Import the handleBlur function
 
 const SearchNetwork = () => {
   // State definitions
@@ -12,6 +13,7 @@ const SearchNetwork = () => {
   const [descriptionOptions, setDescriptionOptions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]); // State to store data to send to NetworkTable
+  const [formErrors, setFormErrors] = useState({}); // State for form errors
 
   // Handle transaction type change
   const handleTransactionTypeChange = (e) => {
@@ -92,23 +94,13 @@ const SearchNetwork = () => {
   const handleClear = () => {
     setFormData(add_linkage); // Reset form data
     setData([]); // Clear data sent to NetworkTable
+    setFormErrors({}); // Clear form errors
   };
 
   // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log('Submitted Data:', formData);
-
-    // // Prepare data to send to NetworkTable
-    // if (formData.header.ticketType === 'Update Linkage') {
-    //   const tableData = [
-    //     { id: 1, state: 'NY', con_state: 'NY', sourceCode: '123', sourceCodeText: 'Example Text' },
-    //     // Add more data rows as needed
-    //   ];
-    //   setData(tableData); // Update state with prepared data
-    // } else {
-    //   setData([]); // Clear data for 'Add Address'
-    // }
   };
 
   // Function to get selected description labels
@@ -136,14 +128,22 @@ const SearchNetwork = () => {
           name="profile.masterProvID"
           value={formData.profile.masterProvID || ''}
           onChange={handleChange}
+          onBlur={(e) => handleBlur(e, setFormErrors)} // Validate on blur
         />
+        {formErrors['profile.masterProvID'] && (
+          <div style={{ color: 'red' }}>{formErrors['profile.masterProvID']}</div>
+        )}
 
         <TextFieldComponent
           label="LOB"
           name="profile.lob"
           value={formData.profile.lob || ''}
           onChange={handleChange}
+          onBlur={(e) => handleBlur(e, setFormErrors)} // Validate on blur
         />
+        {formErrors['profile.lob'] && (
+          <div style={{ color: 'red' }}>{formErrors['profile.lob']}</div>
+        )}
 
         <TextFieldComponent
           label="Market"
@@ -169,7 +169,6 @@ const SearchNetwork = () => {
         </button>
       </form>
 
-      {/* Pass the data directly to NetworkTable via props */}
       <NetworkTable transactionType={formData.header.ticketType} data={data} />
     </div>
   );
