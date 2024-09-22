@@ -8,7 +8,6 @@ import NetworkTable from '../Table/NetworkTable';
 import { handleBlur } from './validation'; // Import the handleBlur function
 
 const SearchNetwork = () => {
-  // State definitions
   const [formData, setFormData] = useState(add_linkage); // Initial form data
   const [descriptionOptions, setDescriptionOptions] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -129,10 +128,9 @@ const SearchNetwork = () => {
           value={formData.profile.masterProvID || ''}
           onChange={handleChange}
           onBlur={(e) => handleBlur(e, setFormErrors)} // Validate on blur
+          error={!!formErrors['profile.masterProvID']} // Pass error state
+          helperText={formErrors['profile.masterProvID']} // Show error message
         />
-        {formErrors['profile.masterProvID'] && (
-          <div style={{ color: 'red' }}>{formErrors['profile.masterProvID']}</div>
-        )}
 
         <TextFieldComponent
           label="LOB"
@@ -140,10 +138,9 @@ const SearchNetwork = () => {
           value={formData.profile.lob || ''}
           onChange={handleChange}
           onBlur={(e) => handleBlur(e, setFormErrors)} // Validate on blur
+          error={!!formErrors['profile.lob']} // Pass error state
+          helperText={formErrors['profile.lob']} // Show error message
         />
-        {formErrors['profile.lob'] && (
-          <div style={{ color: 'red' }}>{formErrors['profile.lob']}</div>
-        )}
 
         <TextFieldComponent
           label="Market"
