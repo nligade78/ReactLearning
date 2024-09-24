@@ -3,13 +3,14 @@ import { Card, CardContent } from '@mui/material';
 import { useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
-const ResponsiveCard = ({ children }) => {
+const ResponsiveCard = ({ children, ...props }) => {
   const theme = useTheme();
   const isLargeScreen = useMediaQuery(theme.breakpoints.up('md')); // Large screen devices
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm')); // Small screen devices
 
   return (
     <Card
+    // {...props}
       style={{
         width: '120%', // Take full width of the container
         margin: isSmallScreen ? '10px' : '20px auto', // Add some margin on small devices
