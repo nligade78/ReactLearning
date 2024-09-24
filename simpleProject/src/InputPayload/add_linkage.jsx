@@ -1,9 +1,13 @@
 export const add_linkage={
     "header":{
+        "transactionID":"",
+        "sourceApp":"",
+        "priority":"",
         "ticketType":"",
         "originalDetails":{
             "sourceSystem":"",
             "contractState":"",
+            "corporateReceptDate":"",
             "requestors":[
                 {
                "firstName":"",
@@ -11,6 +15,7 @@ export const add_linkage={
                "email":""             
                 }
             ],
+            "LOB":[]
         }
         
     },
@@ -20,6 +25,7 @@ export const add_linkage={
             "typeCode":"181",
             "typeCodeTxt":"Individual",
             "taxID":"",
+            "specialityCd":"",
             "taxonomyCd":[]
         
         }

@@ -1,0 +1,10 @@
+.dataGridContainer {
+    height: 450px;
+    width: 100%;
+    overflow: hidden; /* Hide scrollbar */
+  }
+  
+  .dataGrid {
+    overflow: hidden; /* Hide scrollbar for DataGrid itself */
+  }
+  

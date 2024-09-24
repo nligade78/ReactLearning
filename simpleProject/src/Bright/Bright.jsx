@@ -9,7 +9,7 @@ import {
 import ResponsiveCard from "../Components/ResponsiveCard";
 import SelectComponent from "../InputesFields/SelectComponent";
 import TextFieldComponent from "../InputesFields/TextFieldComponent";
-import { transactionTypeOptions } from "../Constants/Constants";
+import { lob, transactionTypeOptions } from "../Constants/Constants";
 import MenuIcon from "@mui/icons-material/Menu";
 import {
   handleTransactionTypeChange,
@@ -17,17 +17,15 @@ import {
   handleSubmit,
   handleClear,
   toggleDrawer,
+  handleMultiSelectChange,
 } from "./formHandlers"; // Import the handlers
 import UsersTable from "../Table/UsersTable";
 import { handleBlur } from "../Utility/validation";
+import MultiSelectComponent from "../InputesFields/MultiSelectComponent";
+import { add_linkage } from "../InputPayload/add_linkage";
 
 const BrightPage = () => {
-  const [formData, setFormData] = useState({
-    header: { ticketType: "" },
-    profile: { masterProvID: "", lob: "", abc: "" },
-    description: [],
-  });
-
+  const [formData, setFormData] = useState(add_linkage); // Correct use of add_linkage for initial form data
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [formErrors, setFormErrors] = useState({}); // State for form errors
 
@@ -103,7 +101,11 @@ const BrightPage = () => {
               }}
             >
               <Typography variant="h6">Right Side Form</Typography>
-              <Box component="form" onSubmit={handleSubmit(formData)} mt={2}>
+              <Box
+                component="form"
+                onSubmit={(e) => handleSubmit(e, formData)} // Pass event and formData to handleSubmit
+                mt={2}
+              >
                 <Box mb={1}>
                   <SelectComponent
                     label="Transaction type"
@@ -123,6 +125,16 @@ const BrightPage = () => {
                     onBlur={(e) => handleBlur(e, setFormErrors)} // Validate on blur
                     error={!!formErrors["profile.masterProvID"]} // Pass error state
                     helperText={formErrors["profile.masterProvID"]} // Show error message
+                  />
+                </Box>
+                <Box mb={1}>
+                  <MultiSelectComponent
+                    label="LOB"
+                    name="header.originalDetails.LOB"
+                    size="small"
+                    value={formData.header.originalDetails.LOB || []}
+                    onChange={handleMultiSelectChange(setFormData)}
+                    options={lob}
                   />
                 </Box>
                 {/* Add additional fields here */}
@@ -147,7 +159,7 @@ const BrightPage = () => {
               type="submit"
               variant="contained"
               color="primary"
-              onClick={handleSubmit(formData)}
+              onClick={(e) => handleSubmit(e, formData)} // Corrected onClick form submit handler
             >
               Submit
             </Button>
