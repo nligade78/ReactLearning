@@ -5,7 +5,7 @@ import SelectComponent from '../InputesFields/SelectComponent';
 import TextFieldComponent from '../InputesFields/TextFieldComponent';
 import { transactionTypeOptions } from '../Constants/Constants';
 import NetworkTable from '../Table/NetworkTable';
-import { handleBlur } from './validation'; // Import the handleBlur function
+import { handleBlur, validateNumeric } from './validation'; // Import the handleBlur and validation function
 
 const SearchNetwork = () => {
   const [formData, setFormData] = useState(add_linkage); // Initial form data
@@ -54,37 +54,42 @@ const SearchNetwork = () => {
       return newState;
     });
 
-    if (name === 'profile.masterProvID' && value) {
-      setLoading(true);
-      try {
-        const response = await fetch(`https://jsonplaceholder.typicode.com/todos?userId=${value}`);
-        const data = await response.json();
+    // Check if the transaction type is "Update Linkage" and masterProvID is numeric before calling the API
+    if (name === 'profile.masterProvID' && formData.header.ticketType === 'Update Linkage') {
+      if (validateNumeric(value)) {
+        setLoading(true);
+        try {
+          const response = await fetch(`https://jsonplaceholder.typicode.com/todos?userId=${value}`);
+          const data = await response.json();
 
-        const options = data.map((item) => ({
-          value: `${item.id}-${item.title}-${item.completed}`,
-          label: `${item.id} - ${item.title} - ${item.completed}`,
-        }));
-
-        setDescriptionOptions(options);
-
-        const firstCompletedTrue = data.find((item) => item.completed);
-        if (firstCompletedTrue) {
-          setFormData((prevState) => ({
-            ...prevState,
-            profile: {
-              ...prevState.profile,
-              keyData: {
-                ...prevState.profile.keyData,
-                taxonomyCd: [`${firstCompletedTrue.id}`],
-              },
-            },
+          const options = data.map((item) => ({
+            value: `${item.id}-${item.title}-${item.completed}`,
+            label: `${item.id} - ${item.title} - ${item.completed}`,
           }));
+
+          setDescriptionOptions(options);
+
+          const firstCompletedTrue = data.find((item) => item.completed);
+          if (firstCompletedTrue) {
+            setFormData((prevState) => ({
+              ...prevState,
+              profile: {
+                ...prevState.profile,
+                keyData: {
+                  ...prevState.profile.keyData,
+                  taxonomyCd: [`${firstCompletedTrue.id}`],
+                },
+              },
+            }));
+          }
+        } catch (error) {
+          console.error('Error fetching data:', error);
+          setDescriptionOptions([]);
+        } finally {
+          setLoading(false);
         }
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        setDescriptionOptions([]);
-      } finally {
-        setLoading(false);
+      } else {
+        console.log("Master Prov ID is not a valid number");
       }
     }
   };

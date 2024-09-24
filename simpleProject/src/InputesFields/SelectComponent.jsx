@@ -21,7 +21,7 @@ const SelectComponent = ({ label, name, value, onChange, options = [], size = 's
         sx={{
           '.MuiSelect-select': {
             fontSize: '0.75rem', // Smaller font size for the selected value
-            padding: '6px 8px', // Adjust padding
+            padding: '10px 8px', // Adjust padding
           },
           '.MuiSelect-icon': {
             top: size === 'small' ? 'calc(50% - 12px)' : 'calc(50% - 16px)', // Adjust icon position

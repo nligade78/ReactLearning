@@ -10,8 +10,16 @@ import ResponsiveCard from "../Components/ResponsiveCard";
 import SelectComponent from "../InputesFields/SelectComponent";
 import TextFieldComponent from "../InputesFields/TextFieldComponent";
 import { transactionTypeOptions } from "../Constants/Constants";
-import UsersTable from "../Components/UsersTable";
 import MenuIcon from "@mui/icons-material/Menu";
+import {
+  handleTransactionTypeChange,
+  handleChange,
+  handleSubmit,
+  handleClear,
+  toggleDrawer,
+} from "./formHandlers"; // Import the handlers
+import UsersTable from "../Table/UsersTable";
+import { handleBlur } from "../Utility/validation";
 
 const BrightPage = () => {
   const [formData, setFormData] = useState({
@@ -20,42 +28,11 @@ const BrightPage = () => {
     description: [],
   });
 
-  const [isDrawerOpen, setIsDrawerOpen] = useState(true); // State to manage drawer open/collapse
-
-  const handleTransactionTypeChange = (event) => {
-    setFormData({
-      ...formData,
-      header: { ...formData.header, ticketType: event.target.value },
-    });
-  };
-
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    const [field, subField] = name.split(".");
-    setFormData((prevData) => ({
-      ...prevData,
-      [field]: { ...prevData[field], [subField]: value },
-    }));
-  };
-
-  const handleSubmit = (event) => {
-    event.preventDefault(); // Prevent the default form submission
-    console.log("Form submitted:", formData);
-  };
-
-  const handleClear = () => {
-    setFormData({
-      header: { ticketType: "" },
-      profile: { masterProvID: "", lob: "", abc: "" },
-      description: [],
-    });
-  };
-
-  const toggleDrawer = () => {
-    setIsDrawerOpen((prevOpen) => !prevOpen);
-  };
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [formErrors, setFormErrors] = useState({}); // State for form errors
 
   return (
+    // Main Box
     <Box
       display="grid"
       gridTemplateColumns={`${isDrawerOpen ? "10%" : "5%"} ${
@@ -64,13 +41,12 @@ const BrightPage = () => {
       gap="10px"
       padding="10px"
     >
-      {/* Collapsible Drawer */}
+      {/* First Box card */}
       <Box>
         <ResponsiveCard
           sx={{
             border: "1px solid #ddd",
             padding: isDrawerOpen ? "16px" : "8px",
-            // width: isDrawerOpen ? "10%" : "18%",
             borderRadius: "12px",
             boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
             display: "flex",
@@ -80,7 +56,7 @@ const BrightPage = () => {
             transition: "width 0.3s",
           }}
         >
-          <IconButton onClick={toggleDrawer} size="small">
+          <IconButton onClick={toggleDrawer(setIsDrawerOpen)} size="small">
             <MenuIcon />
           </IconButton>
           {isDrawerOpen && (
@@ -89,14 +65,14 @@ const BrightPage = () => {
         </ResponsiveCard>
       </Box>
 
-      {/* Main content area */}
+      {/* Second Box Card */}
       <Box>
         <ResponsiveCard>
           <UsersTable />
         </ResponsiveCard>
       </Box>
 
-      {/* Right-side form */}
+      {/* Third Box card */}
       <Box>
         <ResponsiveCard
           sx={{
@@ -127,13 +103,13 @@ const BrightPage = () => {
               }}
             >
               <Typography variant="h6">Right Side Form</Typography>
-              <Box component="form" onSubmit={handleSubmit} mt={2}>
+              <Box component="form" onSubmit={handleSubmit(formData)} mt={2}>
                 <Box mb={1}>
                   <SelectComponent
                     label="Transaction type"
                     name="transactionType"
                     value={formData.header.ticketType}
-                    onChange={handleTransactionTypeChange}
+                    onChange={handleTransactionTypeChange(setFormData)}
                     options={transactionTypeOptions}
                   />
                 </Box>
@@ -142,65 +118,14 @@ const BrightPage = () => {
                     label="Master Prov ID"
                     name="profile.masterProvID"
                     value={formData.profile.masterProvID}
-                    onChange={handleChange}
+                    onChange={handleChange(setFormData)}
                     size="small"
+                    onBlur={(e) => handleBlur(e, setFormErrors)} // Validate on blur
+                    error={!!formErrors["profile.masterProvID"]} // Pass error state
+                    helperText={formErrors["profile.masterProvID"]} // Show error message
                   />
                 </Box>
-                <Box mb={1}>
-                  <TextFieldComponent
-                    label="LOB"
-                    name="profile.lob"
-                    value={formData.profile.lob || ""}
-                    onChange={handleChange}
-                    size="small"
-                  />
-                </Box>
-                <Box mb={1}>
-                  <TextFieldComponent
-                    label="LOB"
-                    name="profile.lob"
-                    value={formData.profile.lob || ""}
-                    onChange={handleChange}
-                    size="small"
-                  />
-                </Box>
-                <Box mb={1}>
-                  <TextFieldComponent
-                    label="LOB"
-                    name="profile.lob"
-                    value={formData.profile.lob || ""}
-                    onChange={handleChange}
-                    size="small"
-                  />
-                </Box>
-                <Box mb={1}>
-                  <TextFieldComponent
-                    label="LOB"
-                    name="profile.lob"
-                    value={formData.profile.lob || ""}
-                    onChange={handleChange}
-                    size="small"
-                  />
-                </Box>
-                <Box mb={1}>
-                  <TextFieldComponent
-                    label="LOB"
-                    name="profile.lob"
-                    value={formData.profile.lob || ""}
-                    onChange={handleChange}
-                    size="small"
-                  />
-                </Box>
-                <Box mb={1}>
-                  <TextFieldComponent
-                    label="LOB"
-                    name="profile.lob"
-                    value={formData.profile.lob || ""}
-                    onChange={handleChange}
-                    size="small"
-                  />
-                </Box>
-                {/* Additional fields */}
+                {/* Add additional fields here */}
               </Box>
             </FormControl>
           </Box>
@@ -222,7 +147,7 @@ const BrightPage = () => {
               type="submit"
               variant="contained"
               color="primary"
-              onClick={handleSubmit}
+              onClick={handleSubmit(formData)}
             >
               Submit
             </Button>
@@ -230,7 +155,7 @@ const BrightPage = () => {
               type="button"
               variant="outlined"
               color="secondary"
-              onClick={handleClear}
+              onClick={handleClear(setFormData, setFormErrors)}
             >
               Clear
             </Button>

@@ -1,6 +1,7 @@
 import React from 'react';
 
-import Configurations from './Configuration/Configurations';
+// import Configurations from './Configuration/Configurations';
+import Bright from './Bright/Bright';
  // Fallback page for unauthorized access
 
 function App() {
@@ -28,7 +29,7 @@ function App() {
         <Route path="/not-authorized" element={<NotAuthorized />} />
       </Routes> */}
 
-      <Configurations></Configurations>
+      <Bright></Bright>
       </>
     // </AuthProvider>
   );
