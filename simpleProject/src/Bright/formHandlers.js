@@ -53,3 +53,7 @@ export const handleTransactionTypeChange = (setFormData) => (event) => {
     setIsDrawerOpen((prevOpen) => !prevOpen);
   };
   
+
+  export const handleAccordionChange = (setExpanded) => (section) => (event, isExpanded) => {
+    setExpanded(isExpanded ? section : false);
+};

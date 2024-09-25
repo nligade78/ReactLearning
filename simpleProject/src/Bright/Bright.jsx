@@ -5,6 +5,9 @@ import {
   Button,
   FormControl,
   IconButton,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails
 } from "@mui/material";
 import ResponsiveCard from "../Components/ResponsiveCard";
 import SelectComponent from "../InputesFields/SelectComponent";
@@ -20,6 +23,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import AlarmAddIcon from '@mui/icons-material/AlarmAdd';
 import BlockIcon from '@mui/icons-material/Block';
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+
 import {
   handleTransactionTypeChange,
   handleChange,
@@ -27,6 +32,7 @@ import {
   handleClear,
   toggleDrawer,
   handleMultiSelectChange,
+  handleAccordionChange,
 } from "./formHandlers"; // Import the handlers
 import UsersTable from "../Table/UsersTable";
 import { handleBlur } from "../Utility/validation";
@@ -39,17 +45,19 @@ const BrightPage = () => {
   const [formData, setFormData] = useState(add_linkage);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [formErrors, setFormErrors] = useState({});
+  const [expanded, setExpanded] = useState('section1'); // By default, first section is expanded
 
   return (
     <Box
       display="grid"
-      gridTemplateColumns={`${isDrawerOpen ? "10%" : "5%"} ${isDrawerOpen ? "70%" : "75%"} 18%`}
+      gridTemplateColumns={`${isDrawerOpen ? "10%" : "5%"} ${
+        isDrawerOpen ? "70%" : "75%"
+      } 18%`}
       gap="10px"
       padding="10px"
     >
       <Box>
         <ResponsiveCard
-      
           sx={{
             border: "1px solid #ddd",
             padding: isDrawerOpen ? "16px" : "8px",
@@ -60,54 +68,86 @@ const BrightPage = () => {
             alignItems: "center",
             justifyContent: "center",
             transition: "width 0.3s",
-            backgroundColor: '#f5f5f5'
+            backgroundColor: "#f5f5f5",
           }}
         >
           <IconButton onClick={toggleDrawer(setIsDrawerOpen)} size="small">
             <MenuIcon />
           </IconButton>
           {isDrawerOpen && (
-            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 0.1 }}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-start",
+                gap: 0.1,
+              }}
+            >
               <IconButton onClick={() => navigate("/home")}>
                 <HomeIcon />
-                <Typography variant="body2" sx={{ marginLeft: 1 }}>Home</Typography>
+                <Typography variant="body2" sx={{ marginLeft: 1 }}>
+                  Home
+                </Typography>
               </IconButton>
               <IconButton onClick={() => navigate("/settings")}>
                 <SettingsIcon />
-                <Typography variant="body2" sx={{ marginLeft: 1 }}>Settings</Typography>
+                <Typography variant="body2" sx={{ marginLeft: 1 }}>
+                  Settings
+                </Typography>
               </IconButton>
               <IconButton onClick={() => navigate("/info")}>
                 <InfoIcon />
-                <Typography variant="body2" sx={{ marginLeft: 1 }}>Info</Typography>
+                <Typography variant="body2" sx={{ marginLeft: 1 }}>
+                  Info
+                </Typography>
               </IconButton>
               <IconButton onClick={() => navigate("/account")}>
                 <AccountCircleIcon />
-                <Typography variant="body2" sx={{ marginLeft: 1 }}>Account</Typography>
+                <Typography variant="body2" sx={{ marginLeft: 1 }}>
+                  Account
+                </Typography>
               </IconButton>
               <IconButton onClick={() => navigate("/help")}>
                 <HelpIcon />
-                <Typography variant="body2" sx={{ marginLeft: 1 }}>Help</Typography>
+                <Typography variant="body2" sx={{ marginLeft: 1 }}>
+                  Help
+                </Typography>
               </IconButton>
               <IconButton onClick={() => navigate("/delete")}>
                 <DeleteIcon />
-                <Typography variant="body2" sx={{ marginLeft: 1 }}>Delete</Typography>
+                <Typography variant="body2" sx={{ marginLeft: 1 }}>
+                  Delete
+                </Typography>
               </IconButton>
               <IconButton onClick={() => navigate("/delete")}>
                 <AddIcon />
-                <Typography variant="body2" sx={{ marginLeft: 1 }}>Add</Typography>
+                <Typography variant="body2" sx={{ marginLeft: 1 }}>
+                  Add
+                </Typography>
               </IconButton>
               <IconButton onClick={() => navigate("/add")}>
                 <AlarmAddIcon />
-                <Typography variant="body2" sx={{ marginLeft: 1 }}>Alarm</Typography>
+                <Typography variant="body2" sx={{ marginLeft: 1 }}>
+                  Alarm
+                </Typography>
               </IconButton>
               <IconButton onClick={() => navigate("/block")}>
                 <BlockIcon />
-                <Typography variant="body2" sx={{ marginLeft: 1 }}>Delete</Typography>
+                <Typography variant="body2" sx={{ marginLeft: 1 }}>
+                  Delete
+                </Typography>
               </IconButton>
             </Box>
           )}
           {!isDrawerOpen && (
-            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0.9 }}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 0.9,
+              }}
+            >
               <IconButton onClick={() => navigate("/home")}>
                 <HomeIcon />
               </IconButton>
@@ -141,7 +181,7 @@ const BrightPage = () => {
       </Box>
 
       <Box>
-        <ResponsiveCard sx={{ backgroundColor: '#f5f5f5'}}>
+        <ResponsiveCard sx={{ backgroundColor: "#f5f5f5" }}>
           <UsersTable />
         </ResponsiveCard>
       </Box>
@@ -157,7 +197,7 @@ const BrightPage = () => {
             display: "flex",
             flexDirection: "column",
             paddingBottom: "25px",
-             backgroundColor: '#f5f5f5'
+            backgroundColor: "#f5f5f5",
           }}
         >
           <Box
@@ -174,48 +214,159 @@ const BrightPage = () => {
                 overflowY: "auto",
                 height: "380px",
                 "&::-webkit-scrollbar": { display: "none" },
-                
               }}
-            >
-              {/* <Typography variant="h6">Right Side Form</Typography> */}
-              <Box
-                component="form"
-                onSubmit={(e) => handleSubmit(e, formData)}
-                mt={2}
+             >
+                {/* Section 1 */}
+              <Accordion
+               expanded={expanded === 'section1'}
+               onChange={handleAccordionChange(setExpanded)('section1')}
               >
-                <Box mb={1}>
-                  <SelectComponent
-                    label="Transaction type"
-                    name="transactionType"
-                    value={formData.header.ticketType}
-                    onChange={handleTransactionTypeChange(setFormData)}
-                    options={transactionTypeOptions}
-                  />
-                </Box>
-                <Box mb={1}>
-                  <TextFieldComponent
-                    label="Master Prov ID"
-                    name="profile.masterProvID"
-                    value={formData.profile.masterProvID}
-                    onChange={handleChange(setFormData)}
-                    size="small"
-                    onBlur={(e) => handleBlur(e, setFormErrors)}
-                    error={!!formErrors["profile.masterProvID"]}
-                    helperText={formErrors["profile.masterProvID"]}
-                  />
-                </Box>
-                <Box mb={1}>
-                  <MultiSelectComponent
-                    label="LOB"
-                    name="header.originalDetails.LOB"
-                    size="small"
-                    value={formData.header.originalDetails.LOB || []}
-                    onChange={handleMultiSelectChange(setFormData)}
-                    options={lob}
-                  />
-                </Box>
-                {/* Add additional fields here */}
-              </Box>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <Typography variant="subtitle1" sx={{ fontSize: '14px', fontWeight: 'bold' }}>Section 1</Typography>
+                </AccordionSummary>
+                <AccordionDetails sx={{ padding: '8px' }}>
+                  {/* <Typography variant="h6">Right Side Form</Typography> */}
+                  <Box
+                    component="form"
+                    onSubmit={(e) => handleSubmit(e, formData)}
+                  >
+                    <Box mb={1}>
+                      <SelectComponent
+                        label="Transaction type"
+                        name="transactionType"
+                        value={formData.header.ticketType}
+                        onChange={handleTransactionTypeChange(setFormData)}
+                        options={transactionTypeOptions}
+                      />
+                    </Box>
+                    <Box mb={1}>
+                      <TextFieldComponent
+                        label="Master Prov ID"
+                        name="profile.masterProvID"
+                        value={formData.profile.masterProvID}
+                        onChange={handleChange(setFormData)}
+                        size="small"
+                        onBlur={(e) => handleBlur(e, setFormErrors)}
+                        error={!!formErrors["profile.masterProvID"]}
+                        helperText={formErrors["profile.masterProvID"]}
+                      />
+                    </Box>
+                    <Box mb={1}>
+                      <MultiSelectComponent
+                        label="LOB"
+                        name="header.originalDetails.LOB"
+                        size="small"
+                        value={formData.header.originalDetails.LOB || []}
+                        onChange={handleMultiSelectChange(setFormData)}
+                        options={lob}
+                      />
+                    </Box>
+                    {/* Add additional fields here */}
+                  </Box>
+                </AccordionDetails>
+              </Accordion>
+
+              {/* Scetion 2 */}
+              <Accordion
+               expanded={expanded === "section2"}
+               onChange={handleAccordionChange(setExpanded)("section2")}
+              >
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <Typography variant="subtitle1" sx={{ fontSize: '14px', fontWeight: 'bold' }}>Section 2</Typography>
+                </AccordionSummary>
+                <AccordionDetails sx={{ padding: '8px' }}>
+                  {/* <Typography variant="h6">Right Side Form</Typography> */}
+                  <Box
+                    component="form"
+                    onSubmit={(e) => handleSubmit(e, formData)}
+                  >
+                    <Box mb={1}>
+                      <SelectComponent
+                        label="Transaction type"
+                        name="transactionType"
+                        value={formData.header.ticketType}
+                        onChange={handleTransactionTypeChange(setFormData)}
+                        options={transactionTypeOptions}
+                      />
+                    </Box>
+                    <Box mb={1}>
+                      <TextFieldComponent
+                        label="Master Prov ID"
+                        name="profile.masterProvID"
+                        value={formData.profile.masterProvID}
+                        onChange={handleChange(setFormData)}
+                        size="small"
+                        onBlur={(e) => handleBlur(e, setFormErrors)}
+                        error={!!formErrors["profile.masterProvID"]}
+                        helperText={formErrors["profile.masterProvID"]}
+                      />
+                    </Box>
+                    <Box mb={1}>
+                      <MultiSelectComponent
+                        label="LOB"
+                        name="header.originalDetails.LOB"
+                        size="small"
+                        value={formData.header.originalDetails.LOB || []}
+                        onChange={handleMultiSelectChange(setFormData)}
+                        options={lob}
+                      />
+                    </Box>
+                    {/* Add additional fields here */}
+                  </Box>
+                </AccordionDetails>
+              </Accordion>
+
+              {/* Scetion 3 */}
+              <Accordion
+                expanded={expanded === "section3"}
+                onChange={handleAccordionChange(setExpanded)("section3")}
+              >
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <Typography variant="subtitle1" sx={{ fontSize: '14px', fontWeight: 'bold' }}>Section 3</Typography>
+                </AccordionSummary>
+                <AccordionDetails sx={{ padding: '8px' }}>
+                  {/* <Typography variant="h6">Right Side Form</Typography> */}
+                  <Box
+                    component="form"
+                    onSubmit={(e) => handleSubmit(e, formData)}
+                    mt={2}
+                  >
+                    <Box mb={1}>
+                      <SelectComponent
+                        label="Transaction type"
+                        name="transactionType"
+                        value={formData.header.ticketType}
+                        onChange={handleTransactionTypeChange(setFormData)}
+                        options={transactionTypeOptions}
+                      />
+                    </Box>
+                    <Box mb={1}>
+                      <TextFieldComponent
+                        label="Master Prov ID"
+                        name="profile.masterProvID"
+                        value={formData.profile.masterProvID}
+                        onChange={handleChange(setFormData)}
+                        size="small"
+                        onBlur={(e) => handleBlur(e, setFormErrors)}
+                        error={!!formErrors["profile.masterProvID"]}
+                        helperText={formErrors["profile.masterProvID"]}
+                      />
+                    </Box>
+                    <Box mb={1}>
+                      <MultiSelectComponent
+                        label="LOB"
+                        name="header.originalDetails.LOB"
+                        size="small"
+                        value={formData.header.originalDetails.LOB || []}
+                        onChange={handleMultiSelectChange(setFormData)}
+                        options={lob}
+                      />
+                    </Box>
+                    {/* Add additional fields here */}
+                  </Box>
+                </AccordionDetails>
+              </Accordion>
+
             </FormControl>
           </Box>
 
