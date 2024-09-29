@@ -14,7 +14,7 @@ function App() {
       <Header header="TODO"/>
       <TodoItem text="Eat"/>
       <TodoItem completed={true} text="Code"/>
-      <TodoItem text="Paly"/>
+      <TodoItem text="Play"/>
       <TodoItem text="Study"/>
       <TodoItem text="Sleep Again"/>
       <Button/>
