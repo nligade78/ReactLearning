@@ -10,7 +10,7 @@ import { handleBlur, validateNumeric } from './validation'; // Import the handle
 const SearchNetwork = () => {
   const [formData, setFormData] = useState(add_linkage); // Initial form data
   const [descriptionOptions, setDescriptionOptions] = useState([]);
-  const [npiOptions, setNpiOptions] = useState([]); // NPI options
+  const [npiOptions, setNpiOptions] = useState([]); // NPI Options
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]); // State to store data to send to NetworkTable
   const [formErrors, setFormErrors] = useState({}); // State for form errors
@@ -55,6 +55,7 @@ const SearchNetwork = () => {
       return newState;
     });
 
+    // Check if the transaction type is "Update Linkage" and masterProvID is numeric before calling the API
     if (name === 'profile.masterProvID' && formData.header.ticketType === 'Update Linkage') {
       if (validateNumeric(value)) {
         setLoading(true);
@@ -67,9 +68,16 @@ const SearchNetwork = () => {
             label: `${item.id} - ${item.title} - ${item.completed}`,
           }));
 
-          setDescriptionOptions(options);
+          const npiOptions = data.map((item) => ({
+            value: `${item.NPI}`,
+            label: `NPI: ${item.NPI}`,
+            primary: item.PRIMARY_SPCLTY_IND === 'Y' ? true : false,
+          }));
 
-          const firstCompletedTrue = data.find((item) => item.completed);
+          setDescriptionOptions(options);
+          setNpiOptions(npiOptions);
+
+          const firstCompletedTrue = data.find((item) => item.PRIMARY_SPCLTY_IND === 'Y');
           if (firstCompletedTrue) {
             setFormData((prevState) => ({
               ...prevState,
@@ -79,12 +87,14 @@ const SearchNetwork = () => {
                   ...prevState.profile.keyData,
                   taxonomyCd: [`${firstCompletedTrue.id}`],
                 },
+                npi: [`${firstCompletedTrue.NPI}`], // Set default NPI for primary specialty
               },
             }));
           }
         } catch (error) {
           console.error('Error fetching data:', error);
           setDescriptionOptions([]);
+          setNpiOptions([]);
         } finally {
           setLoading(false);
         }
@@ -107,28 +117,6 @@ const SearchNetwork = () => {
     console.log('Submitted Data:', formData);
   };
 
-  // Populate NPI options based on PRIMARY_SPCLTY_IND
-  useEffect(() => {
-    const npiList = add_linkage.map((item) => ({
-      value: item.NPI,
-      label: `${item.NPI} - ${item.SPCLTY_DESC}`,
-      primary: item.PRIMARY_SPCLTY_IND === 'Y',
-    }));
-
-    const selectedNpis = npiList
-      .filter((item) => item.primary)
-      .map((item) => item.value);
-
-    setNpiOptions(npiList);
-    setFormData((prevState) => ({
-      ...prevState,
-      profile: {
-        ...prevState.profile,
-        npi: selectedNpis, // Pre-select NPIs where PRIMARY_SPCLTY_IND is 'Y'
-      },
-    }));
-  }, []);
-
   // Function to get selected description labels
   const getSelectedDescriptionLabels = () => {  
     const selectedIds = formData.profile.keyData.taxonomyCd || [];
@@ -138,6 +126,7 @@ const SearchNetwork = () => {
     return selectedOptions.map((option) => option.value);
   };
 
+  // Function to get selected NPI labels
   const getSelectedNpiLabels = () => {
     const selectedNpis = formData.profile.npi || [];
     const selectedOptions = npiOptions.filter(
@@ -199,6 +188,7 @@ const SearchNetwork = () => {
           value={getSelectedNpiLabels()}
           onChange={handleChange}
           options={npiOptions}
+          disabled={!npiOptions.length}
         />
 
         <button type="submit" disabled={loading}>
