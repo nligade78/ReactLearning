@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { add_linkage } from '../InputPayload/add_linkage';
 import MultiSelectComponent from '../InputesFields/MultiSelectComponent';
 import SelectComponent from '../InputesFields/SelectComponent';
@@ -10,6 +10,7 @@ import { handleBlur, validateNumeric } from './validation'; // Import the handle
 const SearchNetwork = () => {
   const [formData, setFormData] = useState(add_linkage); // Initial form data
   const [descriptionOptions, setDescriptionOptions] = useState([]);
+  const [npiOptions, setNpiOptions] = useState([]); // NPI options
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]); // State to store data to send to NetworkTable
   const [formErrors, setFormErrors] = useState({}); // State for form errors
@@ -54,7 +55,6 @@ const SearchNetwork = () => {
       return newState;
     });
 
-    // Check if the transaction type is "Update Linkage" and masterProvID is numeric before calling the API
     if (name === 'profile.masterProvID' && formData.header.ticketType === 'Update Linkage') {
       if (validateNumeric(value)) {
         setLoading(true);
@@ -107,11 +107,41 @@ const SearchNetwork = () => {
     console.log('Submitted Data:', formData);
   };
 
+  // Populate NPI options based on PRIMARY_SPCLTY_IND
+  useEffect(() => {
+    const npiList = add_linkage.map((item) => ({
+      value: item.NPI,
+      label: `${item.NPI} - ${item.SPCLTY_DESC}`,
+      primary: item.PRIMARY_SPCLTY_IND === 'Y',
+    }));
+
+    const selectedNpis = npiList
+      .filter((item) => item.primary)
+      .map((item) => item.value);
+
+    setNpiOptions(npiList);
+    setFormData((prevState) => ({
+      ...prevState,
+      profile: {
+        ...prevState.profile,
+        npi: selectedNpis, // Pre-select NPIs where PRIMARY_SPCLTY_IND is 'Y'
+      },
+    }));
+  }, []);
+
   // Function to get selected description labels
   const getSelectedDescriptionLabels = () => {  
     const selectedIds = formData.profile.keyData.taxonomyCd || [];
     const selectedOptions = descriptionOptions.filter(
       (option) => selectedIds.includes(option.value.split('-')[0])
+    );
+    return selectedOptions.map((option) => option.value);
+  };
+
+  const getSelectedNpiLabels = () => {
+    const selectedNpis = formData.profile.npi || [];
+    const selectedOptions = npiOptions.filter(
+      (option) => selectedNpis.includes(option.value)
     );
     return selectedOptions.map((option) => option.value);
   };
@@ -161,6 +191,14 @@ const SearchNetwork = () => {
           onChange={handleChange}
           options={descriptionOptions}
           disabled={!descriptionOptions.length}
+        />
+
+        <MultiSelectComponent
+          label="NPI"
+          name="npi"
+          value={getSelectedNpiLabels()}
+          onChange={handleChange}
+          options={npiOptions}
         />
 
         <button type="submit" disabled={loading}>
