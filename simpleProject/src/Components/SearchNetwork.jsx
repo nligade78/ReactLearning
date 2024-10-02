@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { add_linkage } from '../InputPayload/add_linkage';
-import MultiSelectComponent from '../InputesFields/MultiSelectComponent';
 import SelectComponent from '../InputesFields/SelectComponent';
 import TextFieldComponent from '../InputesFields/TextFieldComponent';
 import { transactionTypeOptions } from '../Constants/Constants';
@@ -10,7 +9,6 @@ import { handleBlur, validateNumeric } from './validation'; // Import the handle
 const SearchNetwork = () => {
   const [formData, setFormData] = useState(add_linkage); // Initial form data
   const [descriptionOptions, setDescriptionOptions] = useState([]);
-  const [npiOptions, setNpiOptions] = useState([]); // NPI Options
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]); // State to store data to send to NetworkTable
   const [formErrors, setFormErrors] = useState({}); // State for form errors
@@ -75,26 +73,24 @@ const SearchNetwork = () => {
           }));
 
           setDescriptionOptions(options);
-          setNpiOptions(npiOptions);
 
-          const firstCompletedTrue = data.find((item) => item.PRIMARY_SPCLTY_IND === 'Y');
-          if (firstCompletedTrue) {
+          const firstPrimarySpecialty = data.find((item) => item.PRIMARY_SPCLTY_IND === 'Y');
+          if (firstPrimarySpecialty) {
             setFormData((prevState) => ({
               ...prevState,
               profile: {
                 ...prevState.profile,
                 keyData: {
                   ...prevState.profile.keyData,
-                  taxonomyCd: [`${firstCompletedTrue.id}`],
+                  taxonomyCd: [`${firstPrimarySpecialty.id}`],
                 },
-                npi: [`${firstCompletedTrue.NPI}`], // Set default NPI for primary specialty
+                npi: firstPrimarySpecialty.NPI, // Set NPI for primary specialty
               },
             }));
           }
         } catch (error) {
           console.error('Error fetching data:', error);
           setDescriptionOptions([]);
-          setNpiOptions([]);
         } finally {
           setLoading(false);
         }
@@ -122,15 +118,6 @@ const SearchNetwork = () => {
     const selectedIds = formData.profile.keyData.taxonomyCd || [];
     const selectedOptions = descriptionOptions.filter(
       (option) => selectedIds.includes(option.value.split('-')[0])
-    );
-    return selectedOptions.map((option) => option.value);
-  };
-
-  // Function to get selected NPI labels
-  const getSelectedNpiLabels = () => {
-    const selectedNpis = formData.profile.npi || [];
-    const selectedOptions = npiOptions.filter(
-      (option) => selectedNpis.includes(option.value)
     );
     return selectedOptions.map((option) => option.value);
   };
@@ -173,7 +160,7 @@ const SearchNetwork = () => {
           onChange={handleChange}
         />
 
-        <MultiSelectComponent
+        <SelectComponent
           label="Description"
           name="description"
           value={getSelectedDescriptionLabels()}
@@ -182,13 +169,12 @@ const SearchNetwork = () => {
           disabled={!descriptionOptions.length}
         />
 
-        <MultiSelectComponent
+        <TextFieldComponent
           label="NPI"
-          name="npi"
-          value={getSelectedNpiLabels()}
+          name="profile.npi"
+          value={formData.profile.npi || ''}
           onChange={handleChange}
-          options={npiOptions}
-          disabled={!npiOptions.length}
+          disabled={loading} // Disable the NPI field while loading
         />
 
         <button type="submit" disabled={loading}>
