@@ -4,6 +4,10 @@ const Board = () => {
   const [state, setState] = useState(Array(9).fill(null));
   const [isXTurn, setIsXTurn] = useState(true);
   const handleClick = (index) => {
+    if(state[index] !== null)
+    {
+        return;
+    }
     const copyState = [...state];
     copyState[index] = isXTurn ? "X" : "O";
     setState(copyState);
@@ -46,6 +50,7 @@ const Board = () => {
         </div>
       ) : (
         <>
+        <h4>Player {isXTurn ? "X" : "O "}</h4>
           <div className="board-row">
             <Square onClick={() => handleClick(0)} value={state[0]} />
             <Square onClick={() => handleClick(1)} value={state[1]} />
