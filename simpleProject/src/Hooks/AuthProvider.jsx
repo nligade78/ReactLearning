@@ -1,67 +1,75 @@
-import React, { createContext, useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { ThemeProvider, createTheme } from '@mui/material';
+import React, { createContext, useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext();
-const defaultTheme = createTheme();
 
-function AuthProvider({ children }) { // Ensure children is correctly destructured here
+function AuthProvider({ children }) {
   const [authenticated, setAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState(null); // User is initially null
+  const [user, setUser] = useState(undefined);
   const navigate = useNavigate();
   const location = useLocation();
 
-  const url = 'http://localhost:3000/api/user'; // Replace with the actual API URL
+  const oktaLoginUrl = 'https://jsonplaceholder.typicode.com/users/1'; // Dummy Okta URL for testing
 
-  // Fetch user data when the component mounts
   useEffect(() => {
     setLoading(true);
-    fetch(url, {
-      credentials: 'include', // This allows sending cookies for authentication
+    fetch(oktaLoginUrl, {
+      credentials: 'include',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
       },
     })
       .then((response) => response.text())
-      .then((body) => {
-        if (body === '') {
+      .then((data) => {
+        if (data === '') {
           setAuthenticated(false);
         } else {
-          setUser(JSON.parse(body));
+          const userData = JSON.parse(data);
+          setUser(userData);
           setAuthenticated(true);
         }
         setLoading(false);
       })
       .catch((error) => {
         console.error('Error fetching user data:', error);
-        setAuthenticated(false);
-        setLoading(false);
+        setLoading(false); // Ensure loading state is cleared even on error
       });
-  }, [setAuthenticated, setLoading, setUser]);
+  }, [navigate]);
 
-  // Redirect to the appropriate route based on user access or to the login page
   useEffect(() => {
-    if (authenticated) {
-      const urlRoute = location.pathname.substring(1, location.pathname.length);
-      if (user.access.includes(urlRoute)) {
-        navigate('/' + urlRoute, { replace: true });
-      }
-    } else if (loading === false) {
-      // If not authenticated and loading is complete, redirect to Okta login page
-      window.location.href = 'http://localhost:3000/api/private'; // Redirect to the Okta login page
+    // Redirect to the Okta login page if not authenticated and loading is done
+    if (!authenticated && !loading) {
+      window.location.href = oktaLoginUrl;
     }
-  }, [authenticated, loading, location.pathname, navigate, user.access]);
+  }, [authenticated, loading]);
+
+  useEffect(() => {
+    // Ensure `user` is available and check for access
+    if (authenticated && user) {
+      const urlRoute = location.pathname.substring(1, location.pathname.length);
+      if (user.access && user.access.includes(urlRoute)) {
+        navigate('/' + urlRoute, { replace: true });
+      } else {
+        // Handle the case where the user doesn't have access to the route
+        navigate('/no-access', { replace: true });
+      }
+    }
+  }, [navigate, location, authenticated, user]);
 
   if (loading) {
     return <p>Loading...</p>;
   }
 
+  if (!authenticated) {
+    return null; // No UI to show, redirect is happening to Okta login
+  }
+
   return (
-    <ThemeProvider theme={defaultTheme}>
-      {children} {/* Render children if authenticated */}
-    </ThemeProvider>
+    <AuthContext.Provider value={{ user }}>
+      {children}
+    </AuthContext.Provider>
   );
 }
 
