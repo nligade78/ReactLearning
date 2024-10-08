@@ -10,15 +10,13 @@ function AuthProvider({ children }) {
   const [authenticated, setAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(undefined);
-  const navigate = useNavigate();
+  const navigate = useNavigate(); 
   const location = useLocation();
-  const oktaUrl = 'https://jsonplaceholder.typicode.com/users/1'; // Dummy Okta login URL
-  const loginUrl = 'https://jsonplaceholder.typicode.com/users/1'; // Dummy login page URL
+  const url = 'https://jsonplaceholder.typicode.com/users/1'; // Dummy Okta URL for testing
 
-  // Automatically redirect to Okta login if not authenticated
   useEffect(() => {
-    setLoading(true);
-    fetch(oktaUrl, {
+    // Call the API to check if the user is authenticated
+    fetch(url, {
       credentials: 'include',
       headers: {
         Accept: 'application/json',
@@ -26,55 +24,47 @@ function AuthProvider({ children }) {
       },
     })
       .then((response) => response.text())
-      .then((body) => {
-        if (body === '') {
-          setAuthenticated(false);
-          window.location.href = loginUrl; // Redirect to Okta login if not authenticated
+      .then((data) => {
+        if (data === '') {
+          setAuthenticated(false); // User is not authenticated
         } else {
-          const userData = JSON.parse(body);
-          if (userData.verified) { // Add verification check here
-            setUser(userData);
-            setAuthenticated(true);
-          } else {
-            setAuthenticated(false);
-            window.location.href = loginUrl; // Redirect if not verified
-          }
+          setUser(JSON.parse(data));
+          setAuthenticated(true);
         }
         setLoading(false);
       });
-  }, [setAuthenticated, setUser]);
+  }, []);
 
-  // Redirect to the appropriate page based on user access rights
   useEffect(() => {
-    const urlRoute = location.pathname.substring(1);
-    if (authenticated && user?.access.includes(urlRoute)) {
-      navigate(`/${urlRoute}`, { replace: true });
+    // Automatically redirect to login page if not authenticated
+    if (!loading && !authenticated) {
+      window.location.href = url; // Redirect to the login page
     }
-  }, [authenticated, user, location, navigate]);
+  }, [authenticated, loading]);
+
+  useEffect(() => {
+    // Redirect the user to the desired route if authenticated
+    if (authenticated && user) {
+      const urlRoute = location.pathname.substring(1);
+      if (user.access.includes(urlRoute)) {
+        navigate('/' + urlRoute, { replace: true });
+      }
+    }
+  }, [navigate, authenticated, user, location]);
 
   if (loading) {
-    return <p>Loading...</p>;
+    return <p>Loading...</p>; // Show a loading indicator while checking authentication
   }
 
   if (!authenticated) {
-    return (
-      <ThemeProvider theme={defaultTheme}>
-        <Container component="main" maxWidth="xs">
-          <CssBaseline />
-          <Box sx={{ marginTop: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-              <LockOutlinedIcon />
-            </Avatar>
-            <Typography component="h1" variant="h5">
-              Redirecting to Okta Login...
-            </Typography>
-          </Box>
-        </Container>
-      </ThemeProvider>
-    );
+    return null; // If not authenticated, let the effect handle the login redirect
   }
 
-  return <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ user }}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 export { AuthContext };
