@@ -1,7 +1,10 @@
 import React, { createContext, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { Container, Avatar, Box, CssBaseline, ThemeProvider, Typography, createTheme } from '@mui/material';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 
 const AuthContext = createContext();
+const defaultTheme = createTheme();
 
 function AuthProvider({ children }) {
   const [authenticated, setAuthenticated] = useState(false);
@@ -9,68 +12,69 @@ function AuthProvider({ children }) {
   const [user, setUser] = useState(undefined);
   const navigate = useNavigate();
   const location = useLocation();
+  const oktaUrl = 'https://jsonplaceholder.typicode.com/users/1'; // Dummy Okta login URL
+  const loginUrl = 'https://jsonplaceholder.typicode.com/users/1'; // Dummy login page URL
 
-  const oktaLoginUrl = 'https://jsonplaceholder.typicode.com/users/1'; // Dummy Okta URL for testing
-
+  // Automatically redirect to Okta login if not authenticated
   useEffect(() => {
     setLoading(true);
-    fetch(oktaLoginUrl, {
+    fetch(oktaUrl, {
       credentials: 'include',
       headers: {
-        'Accept': 'application/json',
+        Accept: 'application/json',
         'Content-Type': 'application/json',
       },
     })
       .then((response) => response.text())
-      .then((data) => {
-        if (data === '') {
+      .then((body) => {
+        if (body === '') {
           setAuthenticated(false);
+          window.location.href = loginUrl; // Redirect to Okta login if not authenticated
         } else {
-          const userData = JSON.parse(data);
-          setUser(userData);
-          setAuthenticated(true);
+          const userData = JSON.parse(body);
+          if (userData.verified) { // Add verification check here
+            setUser(userData);
+            setAuthenticated(true);
+          } else {
+            setAuthenticated(false);
+            window.location.href = loginUrl; // Redirect if not verified
+          }
         }
         setLoading(false);
-      })
-      .catch((error) => {
-        console.error('Error fetching user data:', error);
-        setLoading(false); // Ensure loading state is cleared even on error
       });
-  }, [navigate]);
+  }, [setAuthenticated, setUser]);
 
+  // Redirect to the appropriate page based on user access rights
   useEffect(() => {
-    // Redirect to the Okta login page if not authenticated and loading is done
-    if (!authenticated && !loading) {
-      window.location.href = oktaLoginUrl;
+    const urlRoute = location.pathname.substring(1);
+    if (authenticated && user?.access.includes(urlRoute)) {
+      navigate(`/${urlRoute}`, { replace: true });
     }
-  }, [authenticated, loading]);
-
-  useEffect(() => {
-    // Ensure `user` is available and check for access
-    if (authenticated && user) {
-      const urlRoute = location.pathname.substring(1, location.pathname.length);
-      if (user.access && user.access.includes(urlRoute)) {
-        navigate('/' + urlRoute, { replace: true });
-      } else {
-        // Handle the case where the user doesn't have access to the route
-        navigate('/no-access', { replace: true });
-      }
-    }
-  }, [navigate, location, authenticated, user]);
+  }, [authenticated, user, location, navigate]);
 
   if (loading) {
     return <p>Loading...</p>;
   }
 
   if (!authenticated) {
-    return null; // No UI to show, redirect is happening to Okta login
+    return (
+      <ThemeProvider theme={defaultTheme}>
+        <Container component="main" maxWidth="xs">
+          <CssBaseline />
+          <Box sx={{ marginTop: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+              <LockOutlinedIcon />
+            </Avatar>
+            <Typography component="h1" variant="h5">
+              Redirecting to Okta Login...
+            </Typography>
+          </Box>
+        </Container>
+      </ThemeProvider>
+    );
   }
 
-  return (
-    <AuthContext.Provider value={{ user }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>;
 }
 
 export { AuthContext };
