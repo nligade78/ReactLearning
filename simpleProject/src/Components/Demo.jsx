@@ -110,6 +110,65 @@ Jira Story Statement:
 "Fix the issue where the NPI field does not refresh when an invalid individual provider ID is entered, ensuring that the field is reset and properly reflects the invalid input state."
 
 
+_____
+Jira Story Description:
+Story: Update the form labels dynamically based on the selected Transaction Type. The form should display different labels depending on whether "Add Address" or "Update Linkage" is selected in the Transaction Type dropdown.
+
+Unit Test for Label Change Based on Transaction Type:
+Test Case 1: Label for "Add Address" Transaction Type
+Description: Ensure the correct label is displayed when the Transaction Type is set to "Add Address".
+
+Steps:
+
+Render the form with the Transaction Type dropdown.
+Select "Add Address" from the Transaction Type dropdown.
+Verify that the specific label associated with the "Add Address" transaction type is rendered on the form.
+Expected Result:
+
+The correct label for "Add Address" is displayed (e.g., "Enter Address Information").
+jsx
+Copy code
+it('should display correct label for Add Address transaction type', () => {
+  render(<YourComponent />);
+  
+  // Simulate selecting "Add Address" from the transaction type dropdown
+  fireEvent.change(screen.getByTestId('transactionTypeDropdown'), { target: { value: 'Add Address' } });
+
+  // Check if the label is updated correctly
+  expect(screen.getByLabelText('Enter Address Information')).toBeInTheDocument();
+});
+Test Case 2: Label for "Update Linkage" Transaction Type
+Description: Ensure the correct label is displayed when the Transaction Type is set to "Update Linkage".
+
+Steps:
+
+Render the form with the Transaction Type dropdown.
+Select "Update Linkage" from the Transaction Type dropdown.
+Verify that the specific label associated with the "Update Linkage" transaction type is rendered on the form.
+Expected Result:
+
+The correct label for "Update Linkage" is displayed (e.g., "Link Provider Information").
+jsx
+Copy code
+it('should display correct label for Update Linkage transaction type', () => {
+  render(<YourComponent />);
+
+  // Simulate selecting "Update Linkage" from the transaction type dropdown
+  fireEvent.change(screen.getByTestId('transactionTypeDropdown'), { target: { value: 'Update Linkage' } });
+
+  // Check if the label is updated correctly
+  expect(screen.getByLabelText('Link Provider Information')).toBeInTheDocument();
+});
+Let me know if you'd like further adjustments or details!
+
+
+
+
+
+
+
+
+
 
 
 
