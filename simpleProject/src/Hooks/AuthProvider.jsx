@@ -1,7 +1,6 @@
 import React, { createContext, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Container, Avatar, Box, CssBaseline, ThemeProvider, Typography, createTheme } from '@mui/material';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import { createTheme } from '@mui/material';
 
 const AuthContext = createContext();
 const defaultTheme = createTheme();
@@ -15,38 +14,51 @@ function AuthProvider({ children }) {
   const url = 'https://jsonplaceholder.typicode.com/users/1'; // Dummy Okta URL for testing
 
   useEffect(() => {
-    // Call the API to check if the user is authenticated
-    fetch(url, {
-      credentials: 'include',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-    })
-      .then((response) => response.text())
-      .then((data) => {
-        if (data === '') {
-          setAuthenticated(false); // User is not authenticated
+    // Check if the user is authenticated
+    const checkAuthentication = async () => {
+      try {
+        const response = await fetch(url, {
+          credentials: 'include',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data) {
+            setUser(data);
+            setAuthenticated(true);
+          } else {
+            setAuthenticated(false);
+          }
         } else {
-          setUser(JSON.parse(data));
-          setAuthenticated(true);
+          setAuthenticated(false);
         }
+      } catch (error) {
+        console.error('Error fetching authentication status:', error);
+        setAuthenticated(false);
+      } finally {
         setLoading(false);
-      });
-  }, []);
+      }
+    };
+
+    checkAuthentication();
+  }, [url]);
 
   useEffect(() => {
-    // Automatically redirect to login page if not authenticated
+    // Redirect to login page if not authenticated
     if (!loading && !authenticated) {
       window.location.href = url; // Redirect to the login page
     }
-  }, [authenticated, loading]);
+  }, [authenticated, loading, url]);
 
   useEffect(() => {
     // Redirect the user to the desired route if authenticated
     if (authenticated && user) {
       const urlRoute = location.pathname.substring(1);
-      if (user.access.includes(urlRoute)) {
+      if (user.access && user.access.includes(urlRoute)) {
         navigate('/' + urlRoute, { replace: true });
       }
     }
