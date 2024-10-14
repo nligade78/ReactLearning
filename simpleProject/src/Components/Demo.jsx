@@ -136,3 +136,22 @@ Process the API response within the component (e.g., update state or pass the da
 Ensure Error Handling
 
 Verify that error handling is properly implemented in the refactored API function and that it gracefully handles errors in the component.
+_______
+handleClickOpenTableDialog Test Case
+Scenario: Verify that the dialog opens when the function is called.
+
+handleMultiSelect Test Case
+Scenario: Ensure multiple options are selected and added to the state.
+
+handleCheckBoxChange Test Case
+Scenario: Ensure checkbox state is updated based on user interaction.
+
+handleCloseDialog Test Case
+Scenario: Verify that the dialog closes when the function is called.
+
+handleClose Test Case
+Scenario: Ensure that closing logic is executed (e.g., dialog or form).
+
+handleSubmit Test Case
+Scenario: Verify that submitting triggers the appropriate function and API call.
+
