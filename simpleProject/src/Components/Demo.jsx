@@ -120,3 +120,19 @@ export const handleClear = (
     
   );
   
+Steps for Refactoring API Calls:
+Move API Call to a Separate Module
+
+Extract the API call logic (e.g., getNetworks()) from the component and move it to a new file (e.g., apiHandlers.js).
+Import the API Function into the Component
+
+Import the refactored API function into the component where it is needed (e.g., import { getNetworks } from './apiHandlers';).
+Trigger API Call in the Component
+
+Ensure the API call is triggered from the original component by calling the function when necessary (e.g., on button click or form submit).
+Handle API Response in the Component
+
+Process the API response within the component (e.g., update state or pass the data to other functions).
+Ensure Error Handling
+
+Verify that error handling is properly implemented in the refactored API function and that it gracefully handles errors in the component.
