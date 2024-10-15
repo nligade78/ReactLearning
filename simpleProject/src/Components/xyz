@@ -4,3 +4,56 @@ The ABC Application is a comprehensive web application designed to streamline da
 To ensure seamless user experiences, the application includes a Responsive App Bar for navigation, integrated authentication using an Auth Provider (e.g., Okta), and a robust state management system powered by React Context and Material UI Context. The ABC Application provides secure and efficient access to data through API integrations.
 
 This document provides an in-depth look into the technical architecture, key components, and configuration settings that drive the functionality of the ABC Application. It outlines the application's structure, from API integration to state management, offering insights for developers, system architects, and future maintainers.
+
+----------
+
+Architecture Overview
+The ABC Application is built on a modular and scalable architecture, utilizing modern web development practices. The architecture is designed to promote component reusability, maintainability, and efficient data handling. It is organized into several layers, each responsible for a specific set of functionalities.
+
+1. Frontend Architecture
+The application is built using React, a component-based library that allows for dynamic and efficient rendering of the user interface. The key aspects of the frontend architecture include:
+
+Component-Based Structure: The application is broken down into small, reusable components, such as the SearchNetwork, Responsive App Bar, and DataGrid. Each component is self-contained, handling specific parts of the UI and logic.
+
+State Management: Application state is managed using a combination of React Context and useState hooks. The Material UI Context is utilized to handle UI state, providing a consistent design and behavior across the application. This modular approach makes it easier to share state between components, improving scalability.
+
+Material UI Integration: The UI components are built using Material UI, providing a responsive and modern design. Custom styling is applied where necessary to maintain consistency and branding.
+
+Authentication and Authorization: The application uses an Auth Provider (e.g., Okta) to manage user authentication. Role-based access control ensures that different users have access to different parts of the application based on their roles and permissions.
+
+2. API Layer
+RESTful API Integration: The application interacts with external services via RESTful APIs, primarily for fetching and submitting data. The SearchNetwork feature is a critical part of this, as it involves querying data based on user inputs and displaying results in a DataGrid.
+
+Network Handlers: A separate layer of networkHandlers is responsible for making API calls. This abstraction allows for centralized API logic, making it easier to manage error handling, retries, and token-based authentication. This layer also ensures that all API responses are processed and passed down to the relevant components.
+
+Data Fetching and Display: The application fetches data asynchronously using React's useEffect and useState hooks. The data is then passed to the DataGrid component for efficient tabular representation. Any filtering or sorting logic is managed at the component level.
+
+3. Authentication Flow
+Auth Provider: User authentication is managed through Okta. The application uses token-based authentication, where users log in via Okta, and a JWT token is issued. This token is then attached to all API requests for secure access to protected routes and data.
+
+Protected Routes: The application uses React Router to manage navigation, with certain routes protected and accessible only after successful authentication. Unauthorized users are redirected to the login page.
+
+Session Management: User sessions are managed via tokens stored in cookies or local storage, with automatic logout functionality if a session expires or a token becomes invalid.
+
+4. User Interface Layer
+Responsive Design: The application is fully responsive, adapting to various screen sizes, from mobile devices to large desktop monitors. Material UI's responsive grid system and custom breakpoints are used to ensure consistent design across different devices.
+
+Responsive App Bar: The top-level navigation is handled by a Responsive App Bar, which adapts to screen size and user authentication state. It dynamically adjusts the navigation options based on the user’s role or permissions.
+
+5. State and Context Management
+Global State Management: The application uses React Context to manage global state across components, ensuring that authentication state, UI preferences, and other critical application data are available throughout the application.
+
+Material UI Context: This context layer is used to control the UI theme, layout settings, and other Material UI-related configurations, ensuring consistent user experience.
+
+Local State Management: In addition to global state, components manage their own local state using useState for controlling form inputs, table data, and dynamic UI behavior.
+
+6. Data Presentation Layer
+DataGrid: The DataGrid component from Material UI is used to efficiently display large amounts of data. It supports features like pagination, sorting, and filtering. The DataGrid is customizable to adapt to the application's needs, such as adding custom actions or column types.
+
+Collapsible Sections: The UI features collapsible sections, allowing users to hide or reveal different parts of the form as needed. This improves the overall usability of the application, particularly for forms with multiple input fields or sections.
+
+7. Error Handling and Validation
+Form Validation: Forms in the application are validated both on the client-side and server-side. Client-side validation uses custom hooks to check for input errors before submission, while server-side validation ensures data integrity when interacting with APIs.
+
+Error Feedback: User-friendly error messages are displayed when API requests fail, or form validation errors occur. These errors are logged for further investigation.
+
