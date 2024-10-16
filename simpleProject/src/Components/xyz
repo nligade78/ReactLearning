@@ -61,3 +61,53 @@ Form Validation: Forms in the application are validated both on the client-side 
 
 Error Feedback: User-friendly error messages are displayed when API requests fail, or form validation errors occur. These errors are logged for further investigation.
 
+---------------------(*(()(------------)))
+
+Component Structure
+The ABC Application follows a modular, component-based architecture, which promotes reusability and maintainability. The application is divided into several key components, each handling a distinct part of the user interface (UI) and business logic. Below is an overview of the main components and their roles:
+
+1. SearchNetwork Component
+Purpose: The SearchNetwork component is responsible for allowing users to search and fetch data from APIs, and it displays the results in a tabular format using DataGrid. This component is the primary interface for users to interact with data, offering features like sorting, filtering, and pagination.
+Key Sub-Components:
+Search Form: Allows users to input search criteria.
+Results Table: Uses Material UI's DataGrid to display fetched data.
+Search Handlers: Responsible for making API calls, handling responses, and updating the component’s state with the results.
+2. Configuration Component
+Purpose: The Configuration component is used for managing settings and displaying different tables based on dropdown selection. It provides a flexible interface for users to configure and manage system settings.
+Key Sub-Components:
+Dropdown Selector: Enables users to select different configurations.
+Dynamic Table: Displays tables based on the user's selection in the dropdown.
+Configuration Handlers: Manage the logic for fetching and displaying the relevant configuration data from the backend.
+3. Responsive App Bar
+Purpose: The Responsive App Bar provides top-level navigation for the application. It includes links to key components such as SearchNetwork, Configuration, and the Profile Section.
+Key Features:
+User-Specific Links: Displays different options based on the authenticated user's role.
+Logout Button: Allows users to log out of the application.
+Responsive Design: Adjusts to various screen sizes, collapsing into a hamburger menu on smaller screens.
+4. Profile Section
+Purpose: The Profile Section dynamically updates based on the user's access permissions. It displays options like access to SearchNetwork or Configuration based on their role.
+Key Features:
+Access-Controlled Links: Shows only the pages and components that the user has permission to view.
+Profile and Settings Management: Users can manage their profile or access system settings from this section.
+5. Shared Components
+Purpose: These components are used across multiple parts of the application to maintain consistency and reduce redundancy.
+Examples:
+Buttons: Custom buttons with consistent styling and behavior.
+Form Inputs: Reusable input components like TextFieldComponent and SelectComponent with common validation logic.
+Loader: A reusable loading spinner to indicate asynchronous actions.
+Modals: Custom modals for displaying information or confirming actions.
+6. State and Context Providers
+Purpose: These components handle global state management across the application.
+Key Sub-Components:
+AuthContext: Manages the authentication state and provides access control logic based on the user’s role.
+UIContext (Material UI Context): Controls global UI states like theme, layout settings, and other UI preferences.
+7. Network Handlers
+Purpose: These components manage the API calls, centralizing all network logic in one place. This ensures that API interactions are modular and can be reused across multiple components.
+Examples:
+getNetworks: Fetches data for the SearchNetwork component.
+handleConfigurationFetch: Fetches settings data for the Configuration component.
+8. Error Boundary
+Purpose: A global error boundary component is implemented to catch and handle any unexpected errors in the application gracefully. It ensures that users see meaningful error messages instead of breaking the application.
+Key Features:
+Error Logging: Logs errors for further investigation.
+User-Friendly Messaging: Displays user-friendly error messages when something goes wrong.
