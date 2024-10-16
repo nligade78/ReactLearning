@@ -28,12 +28,16 @@ Network Handlers: A separate layer of networkHandlers is responsible for making 
 
 Data Fetching and Display: The application fetches data asynchronously using React's useEffect and useState hooks. The data is then passed to the DataGrid component for efficient tabular representation. Any filtering or sorting logic is managed at the component level.
 
-3. Authentication Flow
-Auth Provider: User authentication is managed through Okta. The application uses token-based authentication, where users log in via Okta, and a JWT token is issued. This token is then attached to all API requests for secure access to protected routes and data.
+Authentication Flow and Role-Based Access Control
+Auth Provider (Okta): User authentication is managed through Okta, using token-based authentication. When a user logs in, Okta issues a JWT token, which is then used to secure API requests and protect specific routes in the application. This token is validated on every request, ensuring secure communication.
 
-Protected Routes: The application uses React Router to manage navigation, with certain routes protected and accessible only after successful authentication. Unauthorized users are redirected to the login page.
+Role-Based Access Control: The application enforces access control via Okta, restricting access to certain components (e.g., SearchNetwork, Configuration) based on user roles. Only users with the necessary permissions can interact with these components. Furthermore, based on the roles and access rights assigned to the logged-in user, different navigation options are displayed under the Profile Section in the application. Users will only see options for the pages they have access to, ensuring that restricted areas are not visible to unauthorized users.
 
-Session Management: User sessions are managed via tokens stored in cookies or local storage, with automatic logout functionality if a session expires or a token becomes invalid.
+Profile-Linked Navigation: After logging in, the user's profile section dynamically updates to reflect their access permissions. The options for accessing components such as SearchNetwork or Configuration appear under the profile dropdown or sidebar, depending on the UI design. If the user lacks the required permissions, those options will not be shown, maintaining a secure and streamlined interface.
+
+Protected Routes: React Router manages application navigation, with specific routes protected based on the authentication and role state. If users attempt to access a restricted page directly (via URL), the system checks their permissions and redirects unauthorized users back to the login page or a 403 (Forbidden) page if necessary.
+
+Session Management: User sessions are maintained through tokens stored in cookies or local storage. The system automatically logs out users when their session or token expires, prompting them to log in again to regain access.
 
 4. User Interface Layer
 Responsive Design: The application is fully responsive, adapting to various screen sizes, from mobile devices to large desktop monitors. Material UI's responsive grid system and custom breakpoints are used to ensure consistent design across different devices.
