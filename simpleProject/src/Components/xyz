@@ -148,3 +148,316 @@ HTTPS: All communication between the client and server, including token exchange
 Token Expiry and Refresh: The JWT tokens have a short expiration time to reduce the risk of token misuse. Tokens can be refreshed automatically or manually through Okta.
 CSRF Protection: The application protects against cross-site request forgery (CSRF) by using secure cookies or token headers for API requests.
 Access Auditing: All access to components is logged, including successful and failed authentication attempts, allowing for proper auditing and monitoring of access control.
+
+-------------------------------787988787-----------------
+
+**SearchNetwork Feature**
+The SearchNetwork feature is a core functionality of the ABC Application, allowing users to search and retrieve network data based on specific criteria. The results are presented in a user-friendly table format, making it easier to browse, filter, and interact with the data. Below are the key aspects of this feature:
+
+1. Purpose
+The SearchNetwork feature provides users with the ability to search for network data through an intuitive form. This feature is critical for data retrieval and offers various customization options, including sorting, filtering, and paginating the results.
+
+2. Key Components
+Search Form: A form where users input their search criteria. This form includes input fields like dropdowns, text fields, and date pickers, allowing for various filters.
+Results Table (DataGrid): The results of the search are displayed using Material UI's DataGrid. It provides a highly customizable, performant, and feature-rich data grid with support for sorting, filtering, and pagination.
+Search Button: A button that triggers the search API call based on the form inputs.
+Reset Button: Resets the form fields, clearing all filters to start a new search.
+3. Data Fetching
+The SearchNetwork component communicates with the backend via API calls to fetch network data. It sends the search parameters entered by the user to the backend, retrieves the results, and populates the DataGrid with the response data.
+Asynchronous Handling: The component handles the asynchronous nature of API calls, showing loaders or spinners while data is being fetched.
+4. DataGrid Customization
+The Material UI DataGrid is heavily customized to suit the application's needs. Key customizations include:
+Column Definitions: Each column of the DataGrid is defined with appropriate labels, sorting functionality, and cell rendering logic.
+Pagination: Supports paginating large datasets, allowing users to navigate through pages of results.
+Filtering: Provides filtering options that allow users to narrow down the data presented in the grid.
+Row Actions: Includes actions like selecting a row or performing specific actions on individual rows.
+5. Search Handlers
+handleSubmit: This function handles the form submission, collecting user input and sending it to the backend for data retrieval.
+handleClear: This function clears all input fields and resets the state, allowing the user to perform a fresh search without the previously entered data.
+handleAPIError: Ensures that any errors during the API call (such as network issues or invalid responses) are gracefully handled, showing appropriate error messages to the user.
+6. Performance Considerations
+Lazy Loading: The DataGrid supports lazy loading, fetching only the data needed for the current page, improving performance for large datasets.
+Debouncing Search Input: To prevent excessive API calls while typing in the search form, the input fields are debounced, ensuring that the backend is only queried after the user finishes typing.
+7. User Experience
+Real-Time Feedback: Loaders are shown while data is being fetched, and success or error messages are displayed once the API call completes.
+Sorting and Filtering: Users can sort the results by clicking on column headers and apply filters directly within the table.
+8. Security
+The SearchNetwork feature is protected by role-based access control. Only users with the necessary permissions can access this feature. If a user does not have the required role, the option for SearchNetwork will not be displayed in the navigation bar, and direct access will be blocked.
+9. Error Handling
+The application ensures that any network or validation errors during the search process are handled gracefully. Users are presented with meaningful error messages, and the system logs the error for further investigation.
+10. Future Enhancements
+Advanced Filters: Future updates could introduce more advanced filtering options such as multi-field filters and date ranges.
+Export Data: A potential enhancement could be the ability for users to export the table data to CSV or Excel format.
+
+
+**Configuration Feature**
+The Configuration feature in the ABC Application allows users to manage and view various configurations related to the network data. This component primarily revolves around providing users with flexibility and control over the data being displayed, organized, and configured. Below are the key elements and aspects of this feature:
+
+1. Purpose
+The Configuration feature offers users a way to adjust and view network configurations based on their selected criteria. This section is essential for setting up and modifying the application's operational parameters, ensuring data is correctly displayed and structured according to user preferences.
+2. Key Components
+Dropdown Selection: Users are presented with a dropdown menu to select the type of configuration they wish to view or modify. This dropdown dynamically updates the table content based on the user's selection.
+Configuration Tables: Based on the dropdown selection, different tables are rendered. These tables display configuration data in an organized, easy-to-read format.
+Configuration Options: The component may provide options for users to edit, save, or reset configurations, depending on the roles and permissions assigned to the user.
+3. Dynamic Table Rendering
+Dropdown Interaction: The core of the Configuration feature is its dynamic nature. When the user selects an option from the dropdown menu, the corresponding table related to that configuration type is displayed.
+Table Data Display: Each table is customized to display the relevant configuration data. The structure of the table, column headers, and row data will change based on the specific configuration selected by the user.
+Pagination and Sorting: For tables with large datasets, pagination and sorting options are available to improve user experience. Users can navigate through pages of data and sort the columns as needed.
+4. API Integration
+The Configuration feature interacts with backend APIs to fetch the latest configuration data based on the user’s selection from the dropdown.
+When a user changes the dropdown value, a new API request is triggered, and the table is updated with the returned data.
+Data Caching: In some cases, the configuration data may be cached to minimize API calls and improve performance, especially for configurations that do not change frequently.
+5. User Roles and Access Control
+Role-Based Access Control (RBAC): Not all users have access to all configuration options. The visibility of dropdown items and tables is determined by the user’s role, as managed by Okta.
+Users with higher-level permissions can see additional options in the dropdown and interact with more complex configuration tables, while restricted users may only see a limited set of configurations.
+Access via Profile Section: After login, users with access to configuration-related components will see the Configuration option under their profile. Unauthorized users will not see this option and will be restricted from accessing this feature.
+6. Editing and Saving Configurations
+For users with the appropriate permissions, configurations can be edited directly within the displayed tables.
+Inline Editing: Users can modify values in certain cells and save the changes, which will trigger an API call to update the backend configuration.
+Validation: Input validation is implemented to ensure that users cannot save invalid configuration values. This may include required fields, data type validation, and range constraints.
+Save and Reset Buttons: Buttons are provided for users to either save their changes or reset the table to its default state. If changes are successfully saved, the user is notified via a success message.
+7. Performance Considerations
+Lazy Loading: For large datasets, the component may use lazy loading to fetch only the data required for the current view, optimizing performance.
+Debounced Dropdown Selection: When a user selects a new configuration from the dropdown, the API call is debounced to prevent multiple unnecessary requests, especially when quickly switching between options.
+8. User Experience
+The Configuration component is designed to be intuitive, allowing users to quickly switch between different configuration sets using the dropdown.
+Responsive Design: The tables and dropdown adjust dynamically based on the user's screen size, providing a consistent experience across different devices, including laptops and larger monitors.
+Real-Time Feedback: Users receive feedback during actions like saving or resetting configurations, ensuring they are informed of the system’s status.
+9. Error Handling
+If an API request fails or returns an invalid response, appropriate error messages are displayed to the user.
+Any validation errors during the saving of configurations will prompt a message, guiding the user to correct the input before retrying.
+10. Future Enhancements
+Bulk Editing: In future iterations, the ability to edit multiple rows at once may be introduced to improve efficiency for users managing large configurations.
+Export and Import: Future updates may include options to export configuration data to CSV or Excel format, as well as the ability to import configuration data from files.
+Audit Logging: For sensitive configurations, adding audit logs to track changes made by different users would be a valuable feature.
+
+**State Management**
+State management plays a crucial role in handling the data flow and interactions across various components of the ABC Application. The application leverages a combination of React Context API and local component state to manage the application's state efficiently. This ensures that data is shared seamlessly between components, and changes in state are reflected across the UI in a performant manner.
+
+7.1 React Context API for Global State
+To manage the global state, the ABC Application uses the React Context API. This allows components across different levels of the component tree to access shared state without the need to pass props down multiple layers. The Context API helps in managing state for key features such as authentication, user roles, and API data fetched across the application.
+
+Key Contexts:
+AuthContext:
+
+Purpose: Handles user authentication state using Okta. This context stores the authenticated user's data, including the JWT token, user roles, and permissions.
+Key States:
+isAuthenticated: Tracks whether the user is logged in.
+userRoles: Stores the roles of the logged-in user (used to determine which components and routes are accessible).
+authToken: Holds the JWT token for API authentication.
+Usage: Used across the application to protect routes (e.g., SearchNetwork and Configuration) and dynamically render components based on user roles.
+SearchNetworkContext:
+
+Purpose: Manages the state of the search form and the search results table for the SearchNetwork feature.
+Key States:
+searchParams: Holds the current search parameters (e.g., LOB, Org ID).
+searchResults: Stores the network data fetched from the API.
+loading: Tracks the loading state while fetching data.
+error: Captures any errors encountered during the API call.
+Usage: Provides the search parameters and results to the SearchNetwork component, making the data available across its child components like the search form and results table.
+ConfigContext:
+
+Purpose: Manages the state for the Configuration feature, especially in terms of the dropdown selection and the corresponding table data.
+Key States:
+selectedConfig: Stores the current configuration selected from the dropdown.
+configData: Holds the table data associated with the selected configuration.
+loading: Indicates whether configuration data is being fetched from the API.
+error: Captures any issues with fetching or updating configuration data.
+Usage: The dropdown and table components in Configuration utilize this context to dynamically update the table based on the user’s selection.
+7.2 Local State for Component-Level Management
+While global state is managed using the Context API, certain components manage their own state locally. Local state is used for more isolated state needs, such as input field values, form submission state, and UI interactions specific to that component.
+
+Key Examples of Local State Usage:
+Form Inputs:
+
+Components like the search form in SearchNetwork or the dropdown in Configuration use local state to manage form inputs.
+Example: A dropdown selection or text input value is controlled locally until the form is submitted or updated.
+Modal and Accordion States:
+
+Modal open/close states and collapsible accordion states (e.g., for collapsible sections on BrightPage) are typically handled locally, ensuring that the UI behaves independently without affecting the global state.
+Example: An accordion section may manage its own isOpen state locally to determine whether the section is expanded or collapsed.
+Pagination and Sorting:
+
+Components like the DataGrid use local state to handle pagination and sorting, as these are typically not shared across components but are specific to the current view.
+Example: The current page number and the column sorting preferences in the SearchNetwork results table are managed locally within the DataGrid component.
+7.3 Data Flow and API Interaction
+State management also plays a crucial role in handling data interactions between the frontend and the backend API. This flow ensures that the user actions (like searching for networks or changing configurations) are properly handled, and the UI is updated with the fetched data.
+
+Steps for Data Flow:
+Action Triggered: A user action, such as submitting a search or selecting an option from the dropdown, triggers a state update.
+API Call: The relevant state (e.g., searchParams or selectedConfig) is used to make an API call through the corresponding network handler function.
+Loading State: The global or local state is updated to indicate that data is being fetched (loading = true).
+API Response: Once the API call is complete, the response is stored in the appropriate context (e.g., searchResults or configData).
+Error Handling: If the API call fails, the error state is updated to display appropriate feedback to the user.
+UI Update: The UI is re-rendered to reflect the new data or show an error message if needed.
+7.4 Error Handling and Side Effects
+The ABC Application handles side effects (such as API calls) using useEffect hooks within specific components. This ensures that data is fetched at the right time and that the application responds to state changes effectively.
+
+Error Handling:
+Global Error State: For major operations like API calls, errors are managed in global context (error state in SearchNetworkContext, ConfigContext, etc.). This allows for centralized error handling and consistent error messages.
+Local Error State: For small UI-level issues (e.g., form validation errors), local state handles errors at the component level.
+7.5 Optimization Techniques
+To ensure optimal performance, several techniques are employed in managing state:
+
+Memoization: useMemo and useCallback are used to memoize values and functions that do not need to be recalculated on every render, especially for expensive operations or frequently changing state.
+Lazy Loading: Only the necessary data is fetched and loaded into state when needed, especially in components like DataGrid that deal with large datasets.
+State Batching: React automatically batches state updates, ensuring that multiple state changes occurring at the same time result in only one re-render, improving performance.
+
+**API Integration**
+API integration is a critical part of the ABC Application, as the app relies on external data fetched from various backend services. The API interactions are primarily used for searching networks, handling configurations, and validating user access. The application uses a combination of Axios for making API calls and network handlers for organizing these calls in a modular way. Additionally, proper error handling ensures a robust user experience.
+
+8.1 Network Handlers
+The ABC Application follows a structured approach to managing API calls by organizing them into separate network handler files. This modular approach helps keep the logic clean and reusable across different components.
+
+Key Handlers:
+SearchNetwork Handler:
+
+Purpose: Fetches network data based on search parameters like LOB and Org ID. This handler is triggered when users interact with the search form in the SearchNetwork component.
+API Call: getNetworks(searchParams)
+Steps:
+The user submits the search form.
+The form data (searchParams) is passed to the getNetworks function in the network handler.
+An API request is sent to fetch the network data from the backend.
+On success, the search results are stored in the SearchNetworkContext and displayed in the DataGrid.
+If an error occurs, the error is caught and handled accordingly.
+Configuration Handler:
+
+Purpose: Fetches table data based on the user's selection in the dropdown within the Configuration component.
+API Call: getConfigurationData(configId)
+Steps:
+When a user selects an option from the dropdown, the configId is passed to the getConfigurationData function.
+An API request is made to retrieve the relevant configuration data.
+The data is then displayed in the associated table within the Configuration component.
+Errors are handled and shown in the UI if the data fetch fails.
+Authentication Handler (Okta):
+
+Purpose: Manages authentication with Okta, ensuring that users are logged in and have appropriate access.
+API Call: Authentication requests are handled via Okta SDK, which manages token issuance and validation.
+Steps:
+On login, Okta issues a JWT token that is stored and used for future API requests.
+The token is passed in the headers for API calls to secure endpoints.
+If a user's token is invalid or expired, they are redirected back to the login page.
+Axios Configuration:
+Base URL: A base URL is defined for all API calls, ensuring that network handlers don't need to specify the full URL each time.
+Request Headers: The JWT token obtained from Okta is included in the Authorization header for protected API calls.
+Timeout: A timeout is configured for API requests to prevent long-hanging requests from slowing down the app.
+8.2 Error Handling
+Robust error handling is a key focus in the ABC Application to ensure that users are informed of any issues with API requests. Errors are managed both globally (for major failures) and locally (for specific components).
+
+Error Types:
+Network Errors: These occur when the API request fails due to a network issue, such as losing internet connectivity or the server being unavailable.
+
+Handling: The application checks for these types of errors and displays a global message (e.g., "Network Error: Please check your connection").
+Client-Side Errors: Errors such as invalid input or authorization failures (e.g., invalid credentials or access denied) are handled gracefully in the UI.
+
+Handling: The error message from the API response is displayed to the user, indicating what went wrong. For example, if a search fails due to invalid parameters, an error message like "Invalid search criteria" is shown.
+Server-Side Errors: If the backend service returns a 500 error or other unexpected responses, these are handled with appropriate fallback UI and logging.
+
+Handling: A generic error message like "Something went wrong, please try again" is shown. If the issue persists, error details are logged for further investigation.
+Error Handling in Network Handlers:
+Each network handler function includes a try-catch block to handle potential errors from API requests. If an error is caught, it updates the relevant context or component state with the error information. This allows the UI to reflect the error and provide feedback to the user.
+
+Retry Mechanism:
+For certain non-critical API calls (e.g., data fetching for optional components), a retry mechanism can be implemented using libraries like axios-retry. This ensures that temporary network issues do not immediately result in failed requests.
+
+8.3 Loading and Success States
+To enhance the user experience, the application also handles loading and success states during API interactions:
+
+Loading Indicators: While data is being fetched, loading spinners or skeleton UI components are shown to indicate that the operation is in progress. This is particularly useful in data-heavy components like the SearchNetwork results table.
+Success Feedback: When an API call completes successfully, the UI is updated to show the new data, and the loading indicator is removed.
+
+**10. Security Measures**
+In the ABC Application, security is a top priority, especially given its use of sensitive data and user authentication. Several layers of security have been implemented to ensure that both the frontend and backend are protected against unauthorized access, data breaches, and common vulnerabilities.
+
+10.1 Authentication & Authorization
+Okta Integration: The application uses Okta for user authentication and authorization. Okta provides a secure and robust identity management system, ensuring that users are authenticated before they can access protected components and API endpoints.
+
+Token-Based Authentication: Once a user logs in via Okta, a JWT (JSON Web Token) is issued. This token is used to authenticate subsequent API requests. The token is passed in the Authorization header for all requests to protected routes.
+
+Access Control: Only authenticated users can access certain components like SearchNetwork and Configuration. Okta’s role-based access control (RBAC) ensures that only users with the appropriate permissions can view or interact with specific features. Unauthorized users are redirected to the login page.
+
+Token Expiration: The token has an expiration time, and once it expires, the user is automatically logged out, ensuring that sessions cannot persist indefinitely. Users are required to log in again to obtain a new token.
+
+10.2 Role-Based Access Control (RBAC)
+Component-Level Access: Based on the user’s role, specific components (e.g., SearchNetwork, Configuration) are either displayed or hidden. This ensures that users without the necessary permissions do not see or interact with features they are not authorized to use.
+
+Dynamic Menu: After login, users only see menu options for the components they have access to under the Profile Section. For example, a user without configuration management permissions won’t see the Configuration menu option.
+
+10.3 Data Encryption
+HTTPS: All API requests and responses are encrypted via HTTPS, ensuring that data exchanged between the client and server is secure and cannot be intercepted.
+
+Token Encryption: The JWT tokens used for authentication are encrypted, adding an additional layer of security to ensure that tokens cannot be tampered with.
+
+10.4 Secure API Endpoints
+Protected Routes: The application uses protected routes with React Router to ensure that only authenticated users can access certain views and components. Routes that require authentication are guarded, and if a user attempts to access a protected route without the appropriate token, they are redirected to the login page.
+
+CORS Policies: Cross-Origin Resource Sharing (CORS) policies are enforced to restrict which domains can make API requests to the backend, preventing unauthorized domains from accessing the APIs.
+
+10.5 Input Validation and Sanitization
+Form Validation: All input fields, particularly in the SearchNetwork and Configuration components, are validated on both the client and server sides. This ensures that invalid or malicious data is caught before it can affect the application’s backend.
+
+Sanitization: Input data is sanitized to prevent cross-site scripting (XSS) attacks and other forms of injection attacks. This helps protect the application from users submitting harmful scripts or data.
+
+10.6 Session Management
+Session Expiration: User sessions are managed using the token expiration feature provided by Okta. Once the token expires, the user is automatically logged out, and they must log in again to continue accessing the application.
+
+Token Storage: JWT tokens are securely stored in HttpOnly cookies or local storage to prevent them from being accessed by malicious scripts running in the browser. This reduces the risk of token theft via XSS attacks.
+
+10.7 Audit Logging and Monitoring
+Audit Logs: Critical actions, such as login attempts, API requests, and data updates, are logged for auditing purposes. This allows for tracking user actions within the application and identifying any suspicious activity.
+
+Monitoring: The backend services are monitored to detect and respond to potential security threats or unusual activity in real-time.
+
+10.8 Cross-Site Request Forgery (CSRF) Protection
+CSRF Tokens: For forms that could trigger state-changing actions (e.g., submitting or deleting data), CSRF tokens are used to verify the authenticity of the request, ensuring that it originated from the authenticated user and not a malicious third party.
+
+
+**Performance Optimization**
+Optimizing performance is crucial for ensuring a smooth and responsive user experience, especially when dealing with large datasets or complex UI components in the ABC Application. Several strategies and techniques have been employed to improve performance across both the frontend and backend.
+
+11.1 Code Splitting & Lazy Loading
+Code Splitting: The ABC Application uses code-splitting techniques to load only the JavaScript bundles necessary for the current route or feature, reducing the initial load time. This is implemented using React's dynamic import() function.
+
+Lazy Loading Components: Non-critical components, such as the Configuration component or certain large UI features, are lazily loaded only when needed. This reduces the initial rendering time, especially for components that may not be accessed immediately.
+
+11.2 Data Fetching Optimization
+Pagination and Infinite Scrolling: In the SearchNetwork feature, the use of pagination helps in reducing the amount of data loaded at once. This ensures that only a subset of data is loaded and displayed in the DataGrid, enhancing performance when dealing with large datasets.
+
+Debounced API Calls: For search inputs, the application implements debouncing to minimize the number of API calls. This prevents excessive calls when users type quickly and only triggers the API request after the user stops typing for a specified period.
+
+11.3 Memoization and Caching
+React Memoization: Components that rely on expensive computations or frequent updates are memoized using React.memo and useMemo to prevent unnecessary re-renders. This improves the rendering performance, particularly for components like DataGrid that display large amounts of data.
+
+API Response Caching: Certain API responses, such as frequently accessed configuration data, are cached to minimize redundant network requests. This reduces the load on the server and speeds up the user experience.
+
+11.4 Virtualization
+DataGrid Virtualization: In the SearchNetwork component, the DataGrid is optimized for handling large datasets by using virtualization. Only the rows that are visible in the viewport are rendered, which significantly improves performance when working with thousands of rows.
+11.5 Minification and Compression
+JavaScript and CSS Minification: The build process of the application includes minifying JavaScript and CSS files, reducing the size of the assets sent to the browser and improving page load times.
+
+GZIP Compression: The server is configured to use GZIP compression for API responses, which reduces the size of data transferred between the server and client, leading to faster load times.
+
+11.6 Optimizing Images and Assets
+Lazy Loading Images: Images and other assets are lazily loaded to ensure that only images in the viewport are loaded. This helps in reducing the initial page load time.
+
+Image Optimization: All images used in the application are optimized (compressed and resized) to reduce their file size without sacrificing quality.
+
+11.7 Reducing Unnecessary Re-Renders
+Key Prop Usage: In dynamic lists, such as the rows in DataGrid, unique keys are provided to ensure that React can efficiently track and update the DOM without unnecessary re-renders.
+
+Avoiding Inline Functions: Inline functions in component props are avoided to prevent re-renders. Instead, callbacks are memoized using useCallback, reducing the rendering overhead.
+
+11.8 Performance Monitoring and Benchmarking
+React Profiler: The application uses the React Profiler to identify bottlenecks in rendering and optimize components that may be rendering more frequently than necessary.
+
+Lighthouse Audits: Periodic performance audits using tools like Google Lighthouse help track key performance metrics such as Time to Interactive (TTI), First Contentful Paint (FCP), and overall page speed. Based on these audits, optimizations are continuously made to improve load times and user interactions.
+
+11.9 Backend Performance Optimizations
+Efficient Database Queries: The backend API ensures that database queries are optimized, especially for fetching large datasets. This involves the use of indexing, query optimization, and limiting the data returned to the necessary fields.
+
+Caching at the Backend: API responses for frequently accessed data are cached at the backend to reduce database hits and improve the response time for repeated requests.
+
+11.10 Handling Large Data Efficiently
+Batch Processing: For operations that involve large data sets, such as bulk uploads or data exports, the application employs batch processing techniques to handle the data in smaller chunks, reducing memory usage and improving performance.
+
+Asynchronous Processing: Non-blocking asynchronous operations are used to handle time-consuming tasks in the background, ensuring that the UI remains responsive.
