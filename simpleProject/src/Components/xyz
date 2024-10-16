@@ -111,3 +111,40 @@ Purpose: A global error boundary component is implemented to catch and handle an
 Key Features:
 Error Logging: Logs errors for further investigation.
 User-Friendly Messaging: Displays user-friendly error messages when something goes wrong.
+
+---------------++++++++++++++++++++++++++++-----------------------------------------
+
+Authentication Flow
+The ABC Application utilizes Okta for managing user authentication and implementing role-based access control. The authentication flow ensures secure access to the application and its components, restricting access to specific features based on the user's role. Below is a detailed explanation of how authentication and access control are implemented in the application.
+
+1. Login Process
+When a user attempts to access the application, they are redirected to the Okta login page.
+The user provides their credentials (username and password), which are verified by Okta.
+Upon successful login, Okta generates a JWT (JSON Web Token) that includes user identity and role information. This token is passed back to the application.
+The JWT token is stored securely in either local storage or cookies, and it is used to authenticate subsequent API requests.
+2. Token-Based Authentication
+Once logged in, the user is authenticated by including the JWT token in the Authorization header for all API requests. This ensures secure communication between the frontend and the backend.
+The token is validated on the server side to ensure that it is still valid and has not expired.
+The JWT token also contains information about the user's role and permissions, which is used for role-based access control.
+3. Role-Based Access Control
+The ABC Application enforces role-based access control (RBAC) using the roles defined in Okta. The JWT token includes the user's role, which determines what components and features the user has access to.
+Based on the user's role, certain components such as SearchNetwork and Configuration will either be visible or hidden.
+For example, users with the necessary role to access the Configuration component will see the option under the Profile Section. If a user does not have the appropriate role, the option will not appear in the navigation menu.
+4. Profile-Linked Navigation
+After a successful login, the application dynamically updates the navigation and options under the Profile Section.
+The options displayed (e.g., SearchNetwork, Configuration) are based on the user’s permissions. Users will only see the features they are authorized to access, ensuring a clean and secure interface.
+If users try to directly access restricted pages via URL, the application will check their role, and unauthorized users will be redirected to either the login page or a 403 Forbidden page.
+5. Protected Routes
+React Router is used to manage navigation within the application. Routes that require authentication and specific roles are protected using custom logic.
+Upon route access, the application verifies the user’s authentication status and role using the JWT token. If the user is not authenticated or lacks the required permissions, they are redirected to the appropriate page (e.g., login or error page).
+Only authenticated users with proper roles can access protected routes like SearchNetwork and Configuration.
+6. Session Management
+The application maintains user sessions using the JWT token stored in local storage or cookies. This session persists across page reloads as long as the token is valid.
+If the token expires (based on Okta’s configuration), the user is automatically logged out and redirected to the login page.
+Token Renewal: Okta can automatically renew the token before it expires if the user is still active, ensuring a seamless session without forcing the user to log in repeatedly.
+Logout Process: When users log out, the JWT token is removed from storage, and the user is redirected to the login page. Subsequent API requests will no longer be authenticated until the user logs back in.
+7. Security Best Practices
+HTTPS: All communication between the client and server, including token exchanges, occurs over HTTPS to prevent man-in-the-middle attacks.
+Token Expiry and Refresh: The JWT tokens have a short expiration time to reduce the risk of token misuse. Tokens can be refreshed automatically or manually through Okta.
+CSRF Protection: The application protects against cross-site request forgery (CSRF) by using secure cookies or token headers for API requests.
+Access Auditing: All access to components is logged, including successful and failed authentication attempts, allowing for proper auditing and monitoring of access control.
