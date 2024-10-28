@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Container,
   Typography,
@@ -24,51 +24,83 @@ const Configurations = () => {
   const [isNewRecord, setIsNewRecord] = useState(false);
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [page, setPage] = useState(0); // Pagination for Table 1
+  const [hasMore, setHasMore] = useState(true); // Check for more data
+  const loader = useRef(null); // Reference for the observer
+
+  // Fetch data for Table 1 using POST request
+  const fetchTable1Data = async (page) => {
+    try {
+      const response = await fetch('https://randomuser.me/api/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          configFlag: 'Contiguous',
+          page: page + 1, // For pagination
+          results: 100,   // Fetch 100 results at a time
+        }),
+      });
+
+      const data = await response.json();
+
+      setRowsTable1((prev) => [
+        ...prev,
+        ...data.results.map((user) => ({
+          id: user.login.uuid, // Unique identifier
+          name: `${user.name.first} ${user.name.last}`, // Full name
+          username: user.login.username,
+          email: user.email,
+        })),
+      ]);
+
+      // Check if there's more data to load
+      if (data.results.length < 100) {
+        setHasMore(false);
+      }
+    } catch (error) {
+      console.error('Error fetching Table 1 data:', error);
+    }
+  };
+
+  // Fetch data for Table 2 (Placeholder example with a different URL)
+  const fetchTable2Data = async () => {
+    try {
+      const response = await fetch('https://jsonplaceholder.typicode.com/users', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = await response.json();
+      setRowsTable2(
+        data.map((user) => ({
+          id: user.id,
+          street: user.address.street,
+          suite: user.address.suite,
+          city: user.address.city,
+          zipcode: user.address.zipcode,
+        }))
+      );
+    } catch (error) {
+      console.error('Error fetching Table 2 data:', error);
+    }
+  };
 
   useEffect(() => {
-    // Fetch data for Table 1
-    fetch('https://jsonplaceholder.typicode.com/users', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      // body: JSON.stringify({ configFlag: 'Automation' }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        setRowsTable1(
-          data.map((user) => ({
-            id: user.id,
-            name: user.name,
-            username: user.username,
-            email: user.email,
-          }))
-        );
-      });
-  }, []);
+    // Fetch initial data for Table 1
+    if (selectedTable === 'Table 1' && rowsTable1.length === 0) {
+      fetchTable1Data(page);
+    }
+  }, [selectedTable, page]);
 
   useEffect(() => {
-    // Fetch data for Table 2
-    fetch('contiguousUrl', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ configFlag: 'Contiguous' }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        setRowsTable2(
-          data.map((user) => ({
-            id: user.id,
-            street: user.address.street,
-            suite: user.address.suite,
-            city: user.address.city,
-            zipcode: user.address.zipcode,
-          }))
-        );
-      });
-  }, []);
+    // Fetch data for Table 2 if the selected table is Table 2
+    if (selectedTable === 'Table 2' && rowsTable2.length === 0) {
+      fetchTable2Data();
+    }
+  }, [selectedTable]);
 
   const columnsTable1 = [
     {
@@ -148,9 +180,30 @@ const Configurations = () => {
     setErrorDialogOpen(false);
   };
 
+  // Infinite scroll using IntersectionObserver
+  useEffect(() => {
+    const observer = new IntersectionObserver(entries => {
+      const target = entries[0];
+      if (target.isIntersecting && hasMore) {
+        setPage(prevPage => prevPage + 1); // Increment page to fetch next set of data
+      }
+    }, {
+      root: null,  // Default to viewport
+      rootMargin: '20px',
+      threshold: 1.0,
+    });
+
+    if (loader.current) {
+      observer.observe(loader.current);
+    }
+
+    return () => {
+      if (loader.current) observer.unobserve(loader.current);
+    };
+  }, [hasMore]);
+
   return (
     <Container>
-      {/* Replaced Card with ResponsiveCard */}
       <ResponsiveCard>
         <Typography variant="h6">Configurations</Typography>
         <TableSelector onChange={handleTableChange} />
@@ -161,6 +214,7 @@ const Configurations = () => {
           rows={selectedTable === 'Table 1' ? rowsTable1 : rowsTable2}
           columns={selectedTable === 'Table 1' ? columnsTable1 : columnsTable2}
         />
+        {hasMore && <div ref={loader} style={{ height: '20px', backgroundColor: 'lightgrey' }}>Loading more data...</div>}
       </ResponsiveCard>
 
       <FormCreator
